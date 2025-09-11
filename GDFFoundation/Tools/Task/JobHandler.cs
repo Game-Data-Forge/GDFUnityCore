@@ -102,6 +102,8 @@ namespace GDFFoundation
 
         public void OnReleased()
         {
+            CheckValidity(this);
+
             _task = null;
             _handler = null;
         }
@@ -120,25 +122,47 @@ namespace GDFFoundation
                 _handler = _pool.Get();
                 _handler._task = _task;
             }
+            else
+            {
+                CheckValidity(_handler);
+            }
 
-            _handler._minGlobal = _task.Progress;
-            _handler._maxGlobal = Lerp(_minGlobal, _maxGlobal, (_step + steps) / _stepAmount);
+            _handler._minGlobal = Lerp(_minGlobal, _maxGlobal, (float)_step / _stepAmount);
+            _handler._maxGlobal = Lerp(_minGlobal, _maxGlobal, (float)(_step + steps) / _stepAmount);
             _handler._step = 0;
+
+            _step += steps;
 
             return _handler;
         }
 
-        public void Step()
+        public float Step()
         {
             ThrowIfCancelled();
 
             _step++;
             _task.progress = Lerp(_minGlobal, _maxGlobal, (float)_step / _stepAmount);
+            return _task.progress;
         }
 
         public void ThrowIfCancelled()
         {
             _task.source.Token.ThrowIfCancellationRequested();
+        }
+
+        private void CheckValidity(JobHandler handler)
+        {
+                if (handler._step < handler._stepAmount - 1)
+                {
+                    GDFLogger.Warning(() => $"The job {_task.Name} is missing steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
+                }
+
+                if (handler._step > handler.StepAmount)
+                {
+                    GDFLogger.Warning(() => $"The job {_task.Name} has too many steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
+                }
+
+                _task.progress = handler._maxGlobal;
         }
 
         #endregion

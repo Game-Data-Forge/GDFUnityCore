@@ -20,9 +20,7 @@ namespace GDFUnity.Editor.ServiceProviders
             if (view != _view) return;
 
             _view.Add(_view.environment);
-            if (NeedCountry)
-            {
-            }
+            
             _view.Add(_view.country);
 
             OnActivate(window, _view);
@@ -50,6 +48,11 @@ namespace GDFUnity.Editor.ServiceProviders
         {
             _view.country.style.display = NeedCountry ? DisplayStyle.Flex : DisplayStyle.None;
             _view.consent.style.display = NeedConsent ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (NeedConsent)
+            {
+                _view.consent.Refresh();
+            }
             
             _view.Update();
         }

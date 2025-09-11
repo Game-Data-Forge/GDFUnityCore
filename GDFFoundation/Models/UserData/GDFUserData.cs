@@ -19,7 +19,7 @@ namespace GDFFoundation
     ///     Base class for user data in the GDF system.
     /// </summary>
     [Serializable]
-    public abstract class GDFUserData : IGDFWritableAccountData, IGDFWritableSyncableData, IGDFWritableStringReference
+    public abstract class GDFUserData : IWritableFieldAccount, IGDFWritableSyncableData, IGDFWritableStringReference
     {
         #region Instance fields and properties
 

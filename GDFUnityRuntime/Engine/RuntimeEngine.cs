@@ -36,62 +36,65 @@ namespace GDFUnity
         private GameObject _gameObject = null;
 
         private Job _launch = null;
-        private IRuntimeConfiguration _configuration;
-
-        private IRuntimeThreadManager _threadManager;
-        private IRuntimeServerManager _serverManager;
-        private IRuntimeEnvironmentManager _environmentManager;
-        private IRuntimeDeviceManager _deviceManager;
-        private IRuntimeAccountManager _accountManager;
-        private IRuntimePlayerDataManager _playerDataManager;
-        private IRuntimeTypeManager _typeManager;
-        private IRuntimePlayerPersistanceManager _persistanceManager;
-
+        public IRuntimeConfiguration _configuration;
+        
         public Job Launch => _launch;
         public IRuntimeConfiguration Configuration => _configuration;
 
-        public IRuntimeThreadManager ThreadManager => _threadManager;
-        public IRuntimeServerManager ServerManager => _serverManager;
-        public IRuntimeEnvironmentManager EnvironmentManager => _environmentManager;
-        public IRuntimeDeviceManager DeviceManager => _deviceManager;
-        public IRuntimeAccountManager AccountManager => _accountManager;
-        public IRuntimePlayerDataManager PlayerDataManager => _playerDataManager;
-        public IRuntimeTypeManager TypeManager => _typeManager;
-        public IRuntimePlayerPersistanceManager PersistanceManager => _persistanceManager;
+        public IRuntimeThreadManager ThreadManager => GDFManagers.UnsafeGet<IRuntimeThreadManager>();
+        public IRuntimeServerManager ServerManager => GDFManagers.UnsafeGet<IRuntimeServerManager>();
+        public IRuntimeEnvironmentManager EnvironmentManager => GDFManagers.UnsafeGet<IRuntimeEnvironmentManager>();
+        public IRuntimeDeviceManager DeviceManager => GDFManagers.UnsafeGet<IRuntimeDeviceManager>();
+        public IRuntimeAccountManager AccountManager => GDFManagers.UnsafeGet<IRuntimeAccountManager>();
+        public IRuntimePlayerDataManager PlayerDataManager => GDFManagers.UnsafeGet<IRuntimePlayerDataManager>();
+        public IRuntimeTypeManager TypeManager => GDFManagers.UnsafeGet<IRuntimeTypeManager>();
+        public IRuntimePlayerPersistanceManager PersistanceManager => GDFManagers.UnsafeGet<IRuntimePlayerPersistanceManager>();
 
         private RuntimeEngine()
         {
             _configuration = RuntimeConfigurationEngine.Instance.Load();
+
+            GDFManagers.Start();
+
+            GDFManagers.AddSingleton(RuntimeConfigurationEngine.Instance);
             
             _gameObject = new GameObject("GDF Engine");
             GameObject.DontDestroyOnLoad(_gameObject);
 
-            _threadManager = _gameObject.AddComponent<RuntimeThreadManager>();
-            _serverManager = new RuntimeServerManager(this);
-            _environmentManager = new RuntimeEnvironmentManager(this);
-            _deviceManager = new RuntimeDeviceManager();
-            _accountManager = new RuntimeAccountManager(this);
-            _typeManager = new RuntimeTypeManager();
-            _persistanceManager = new RuntimePlayerPersistanceManager(this);
-            _playerDataManager = new RuntimePlayerDataManager(this);
+            GDFManagers.AddSingleton<IRuntimeThreadManager, RuntimeThreadManager>(_gameObject.AddComponent<RuntimeThreadManager>());
+            GDFManagers.AddSingleton<IRuntimeServerManager, RuntimeServerManager>();
+            GDFManagers.AddSingleton<IRuntimeEnvironmentManager, RuntimeEnvironmentManager>();
+            GDFManagers.AddSingleton<IRuntimeDeviceManager, RuntimeDeviceManager>();
+            GDFManagers.AddSingleton<IRuntimeAccountManager, RuntimeAccountManager>();
+            GDFManagers.AddSingleton<IRuntimeTypeManager, RuntimeTypeManager>();
+            GDFManagers.AddSingleton<IRuntimePlayerPersistanceManager, RuntimePlayerPersistanceManager>();
+            GDFManagers.AddSingleton<IRuntimePlayerDataManager, RuntimePlayerDataManager>();
+
+            GDFManagers.Build<IRuntimeEngine>(this);
 
             _launch = Job.Run((handler) => {
-                _typeManager.LoadRunner(handler);
+                GDFManagers.UnsafeGet<IRuntimeTypeManager>().LoadRunner(handler);
             }, "Start engine");
-            _launch.Pool = null; // Makes the launch task is never recycled.
+            _launch.Pool = null; // Makes sure the launch job is never recycled.
+        }
+
+        public T Get<T>()
+        {
+            return GDFManagers.Get<T>();
         }
 
         public Job Stop()
         {
             GameObject.Destroy(_gameObject);
-            return Job.Run(async handler => {
+            return Job.Run(async handler =>
+            {
                 handler.StepAmount = 2;
                 try
                 {
-                    await _playerDataManager.Stop();
+                    await PlayerDataManager.Stop();
                     handler.Step();
-                    
-                    await _accountManager.Stop();
+
+                    await AccountManager.Stop();
                     handler.Step();
                 }
                 finally

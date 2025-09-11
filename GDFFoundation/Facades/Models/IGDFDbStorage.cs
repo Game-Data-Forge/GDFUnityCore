@@ -9,7 +9,7 @@
 
 namespace GDFFoundation
 {
-    public interface IGDFDbStorage : IGDFIdStorage
+    public interface IGDFDbStorage : IGDFIdStorage, IFieldProject
     {
         #region Instance fields and properties
 

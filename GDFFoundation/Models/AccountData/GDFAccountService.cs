@@ -73,7 +73,7 @@ namespace GDFFoundation
         /// <summary>
         ///     Gets or sets the end timestamp of the account service.
         /// </summary>
-        public long End { set; get; } = 0;
+        public DateTime End { set; get; }
 
         /// <summary>
         ///     Defines the environment kind of an account service.
@@ -146,6 +146,13 @@ namespace GDFFoundation
         /// </summary>
         public long Service { set; get; }
 
+        [GDFDbDefault(false)]
+        public bool Secure { set; get; }
+        
+        [GDFDbLength(2048)]
+        [GDFDbDefault("")]
+        public string SecureTransaction { set; get; }
+        
         /// <summary>
         ///     Represents the kind of a service.
         /// </summary>
@@ -154,7 +161,7 @@ namespace GDFFoundation
         /// <summary>
         ///     Represents the start property of the GDFAccountService class.
         /// </summary>
-        public long Start { set; get; } = 0;
+        public DateTime Start { set; get; }
 
         /// <summary>
         ///     Represents the status of an account service.
@@ -199,8 +206,8 @@ namespace GDFFoundation
 
             Project = sProjectReference;
             Status = GDFAccountServiceStatus.IsActive;
-            Start = GDFTimestamp.Timestamp(sStart);
-            End = GDFTimestamp.Timestamp(sEnd);
+            Start = sStart;
+            End = sEnd;
             EnvironmentKind = sEnvironmentKind;
             Account = sAccount;
             Service = sService;
@@ -224,8 +231,8 @@ namespace GDFFoundation
         {
             Project = sProjectReference;
             Status = GDFAccountServiceStatus.IsActive;
-            Start = sStart;
-            End = sEnd;
+            Start = GDFDatetime.Now;
+            End = GDFDatetime.Now;
             EnvironmentKind = sEnvironmentKind;
             Account = sAccount;
             Service = sService;
@@ -266,8 +273,8 @@ namespace GDFFoundation
         /// </returns>
         public bool IsDateActive()
         {
-            long tTimestamp = GDFTimestamp.Timestamp();
-            return (Start <= tTimestamp && End >= tTimestamp);
+            DateTime now = GDFDatetime.Now;
+            return (Start <= now && End >= now);
         }
 
         #region From interface IComparable<GDFAccountService>

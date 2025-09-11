@@ -16,18 +16,19 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class ConsentExchange : ISignConsent, ISignCountry, ISignChannel
+    public class ConsentExchange : IFieldsConsent, IFieldCountry, IFieldChannel
     {
         #region Instance fields and properties
 
         #region From interface ISignConsent
 
+        public string LanguageIso { set; get; } = "en-US";
         public short Channel { get; set; }
         public bool Consent { set; get; }
         public string ConsentVersion { set; get; }
         public Country Country { get; set; }
-        public ConsentOptions GameConsentOptions { set; get; }
-        public string GameConsentVersion { set; get; }
+        public ConsentOptions AdditionalOptions { set; get; }
+        public string ConsentName { set; get; }
 
         #endregion
 

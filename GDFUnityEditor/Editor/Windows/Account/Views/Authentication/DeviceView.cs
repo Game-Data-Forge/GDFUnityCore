@@ -24,25 +24,25 @@ namespace GDFUnity.Editor.ServiceProviders
 
         protected override void OnActivate(AccountWindow window, AccountView view)
         {
-            view.consent.RegisterValueChangedCallback(OnConsentChanged);
-            view.consent.value = false;
+            view.consent.onChanged += OnConsentChanged;
+            view.consent.Value = false;
 
             view.Add(_selector);
 
             _login.style.width = 100;
-            _login.SetEnabled(view.consent.value);
+            _login.SetEnabled(view.consent.Value);
 
             view.buttons.Add(_login);
         }
 
         protected override void OnDeactivate(AccountWindow window, AccountView view)
         {
-            view.consent.UnregisterValueChangedCallback(OnConsentChanged);
+            view.consent.onChanged -= OnConsentChanged;
         }
 
-        private void OnConsentChanged(ChangeEvent<bool> ev)
+        private void OnConsentChanged(bool value)
         {
-            _login.SetEnabled(ev.newValue);
+            _login.SetEnabled(value);
         }
     }
 }

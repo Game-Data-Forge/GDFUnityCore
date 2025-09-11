@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class GDFPlayerDataReport : IGDFDbStorage, IGDFRangedData, IGDFWritableAccountData, IGDFWritableLongReference
+    public class GDFPlayerDataReport : IGDFDbStorage, IGDFRangedData, IWritableFieldAccount, IGDFWritableLongReference
     {
         #region Instance fields and properties
 

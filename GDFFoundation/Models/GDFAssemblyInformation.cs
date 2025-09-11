@@ -21,6 +21,7 @@ namespace GDFFoundation
 {
     public interface IGDFAssemblyInformation
     {
+        public string Configuration()=> "no configuration";
         public string GitCommit() => "error";
         public string GitShortCommit() => "error";
         public string GitBranch() => "error";
@@ -63,6 +64,7 @@ namespace GDFFoundation
 
     public class GDFAssemblyInformation : IGDFAssemblyInformation
     {
+        public virtual string Configuration()=> "no configuration";
         public virtual string GitCommit() => "unknown";
         public virtual string GitShortCommit() => "unknown";
         public virtual string GitBranch() => "unknown";

@@ -16,30 +16,18 @@ using System.Globalization;
 
 namespace GDFFoundation
 {
-    [Flags]
-    public enum PrintAsciiKind
-    {
-        None = 0,
-        Information = 1 << 0,
-        Version = 1 << 1,
-        Logo = 1 << 2,
-    }
-
-    [Flags]
-    public enum PrintExampleKind
-    {
-        None = 0,
-        AppSetting = 1 << 0,
-        Configuration = 1 << 1,
-    }
-
     /// <summary>
     ///     Constants class for Game-Data-Forge.
     /// </summary>
     public abstract class GDFConstants
     {
         #region Constants
-
+        
+        public const string K_CONSENT_VERSION = "1.0.0";
+        public const string K_CONSENT_NAME = "Game-Data-Forge";
+        //TODO change this URL 
+        public const string K_CONSENT_URL = "https://www.game-data-forge.com/url_de_licence_a_modifier";
+        
         public const string C_EMPTY_STRING = "";
 
         /// <summary>
@@ -62,91 +50,7 @@ namespace GDFFoundation
         ///     The Editor_UpdateDataSelectedRepeatEvery variable determines the repeat interval for updating selected data in the editor.
         /// </summary>
         public const int Editor_UpdateDataSelectedRepeatEvery = 10;
-
-        /// <summary>
-        ///     Constants related to the GDF assemblies.
-        /// </summary>
-        public const string GDF3Assemblies = "###GDF3Assemblies";
-
-        /// <summary>
-        ///     The GDFCluster class contains various constants used in the GDF software.
-        /// </summary>
-        public const string GDFCluster = "GDFCluster";
-
-        /// <summary>
-        ///     Constants used in the GDFCore namespace.
-        /// </summary>
-        public const string GDFCore = "GDFCore";
-
-        /// <summary>
-        ///     Contains various constants used in GDFCustomModels namespace.
-        /// </summary>
-        public const string GDFCustomModels = "GDFCustomModels";
-
-        /// <summary>
-        ///     Class containing constants used in the GDFDevTeam project.
-        /// </summary>
-        public const string GDFDevTeam = "GDFDevTeam";
-
-        /// <summary>
-        ///     The <see cref="GDFEditionToolbox" /> class contains constants used in the GDFFoundation library.
-        /// </summary>
-        public const string GDFEditionToolbox = "GDFEditionToolbox";
-
-        /// <summary>
-        ///     The GDFEngine class contains constants and configurations for the GDFFoundation framework.
-        /// </summary>
-        public const string GDFEngine = "GDFEngine";
-
-        /// <summary>
-        ///     The <see cref="GDFFoundation" /> class contains various constants used in the GDFFoundation namespace.
-        /// </summary>
-        public const string GDFFoundation = "GDFFoundation";
-
-        /// <summary>
-        ///     The GDFStandardModels class holds constants and configuration information for the standard models in the Game-Data-Forge framework.
-        /// </summary>
-        public const string GDFStandardModels = "GDFStandardModels";
-
-        /// <summary>
-        ///     The GDFUnity class contains various constants and settings for Unity projects using Net-Worked Data.
-        /// </summary>
-        public const string GDFUnity = "GDFUnity";
-
-        /// <summary>
-        ///     Custom edition specific constants for the Unity platform.
-        /// </summary>
-        public const string GDFUnityCustomEdition = "GDFUnityCustomEdition";
-
-        /// <summary>
-        ///     Class containing constants used by GDFUnityEditor.
-        /// </summary>
-        public const string GDFUnityEditor = "GDFUnityEditor";
-
-        /// <summary>
-        ///     Represents the GDFUnityEditorTest constant.
-        /// </summary>
-        public const string GDFUnityEditorTest = "GDFUnityEditorTest";
-
-        /// <summary>
-        ///     The GDFUnityRuntime class contains constants and utility methods related to the Unity runtime environment.
-        /// </summary>
-        public const string GDFUnityRuntime = "GDFUnityRuntime";
-
-        /// <summary>
-        ///     This class contains constants used by the GDFUnityRuntimeTest project.
-        /// </summary>
-        public const string GDFUnityRuntimeTest = "GDFUnityRuntimeTest";
-
-        /// <summary>
-        ///     Constants used in the <see cref="GDFUnityStandardEdition" /> namespace.
-        /// </summary>
-        public const string GDFUnityStandardEdition = "GDFUnityStandardEdition";
-
-        /// <summary>
-        ///     Represents the GDFWeb constant.
-        /// </summary>
-        public const string GDFWeb = "GDFWeb";
+        
 
         /// <summary>
         ///     The constant value for variable K_A.
@@ -158,13 +62,63 @@ namespace GDFFoundation
 
         public const string K_ACCOUNT_EXCEPTION_CATEGORY = "ACC";
         public const int K_ACCOUNT_EXCEPTION_INDEX = 21000;
-        public const int K_CHANNEL_MAX = 99;
-        public const int K_CHANNEL_MIN = 0;
+        
+        public const string K_COUNTRY_EXCEPTION_CATEGORY = "CTY";
+        public const int  K_COUNTRY_EXCEPTION_INDEX= 22000;
+        
+        public const string K_PROJECT_EXCEPTION_CATEGORY = "PRJ";
+        public const int K_PROJECT_EXCEPTION_INDEX = 30000;
+        
+        public const string K_SERVICE_EXCEPTION_CATEGORY = "SRV";
+        public const int K_SERVICE_EXCEPTION_INDEX = 24000;
+        
+        public const string K_SIGN_EXCEPTION_CATEGORY = "SIG";
+        public const int K_SIGN_EXCEPTION_INDEX = 22000;
+        
+        public const string K_SECRET_KEY_EXCEPTION_CATEGORY = "SKY";
+        public const int    K_SECRET_KEY_EXCEPTION_INDEX = 26000;
+        
+        public const string K_PUBLIC_KEY_EXCEPTION_CATEGORY = "PKY";
+        public const int    K_PUBLIC_KEY_EXCEPTION_INDEX = 27000;
+        
+        public const string K_SYNC_EXCEPTION_CATEGORY = "SYC";
+        public const int K_SYNC_EXCEPTION_INDEX = 90000;
+        
+        public const string K_TOKEN_EXCEPTION_CATEGORY = "TKN";
+        public const int K_TOKEN_EXCEPTION_INDEX = 25000;
+        
+        public const string K_UNICITY_EXCEPTION_CATEGORY = "UNY";
+        public const int K_UNICITY_EXCEPTION_INDEX = 10000;
+        
         public const string K_CONSENT_EXCEPTION_CATEGORY = "CSN";
         public const int K_CONSENT_EXCEPTION_INDEX = 23000;
+        
+        public const string K_DEVICE_EXCEPTION_CATEGORY = "DVC";
+        public const int K_DEVICE_EXCEPTION_INDEX = 24000;
+        
+        public const string K_OAUTH_EXCEPTION_CATEGORY = "OAU";
+        public const int K_OAUTH_EXCEPTION_INDEX = 25000;
+        
+        public const string K_SIGN_HASH_EXCEPTION_CATEGORY = "HSH";
+        public const int K_SIGN_HASH_EXCEPTION_INDEX = 26000;
+        
+        public const string K_LANGUAGE_ISO_EXCEPTION_CATEGORY = "LNG";
+        public const int K_LANGUAGE_ISO_EXCEPTION_INDEX = 25000;
+        
         public const string K_DASHBOARD_EXCEPTION_CATEGORY = "DSH";
         public const int K_DASHBOARD_EXCEPTION_INDEX = 40000;
-
+        
+        public const string K_CURRENCY_EXCEPTION_CATEGORY = "CRY";
+        public const int K_CURRENCY_EXCEPTION_INDEX = 99000;
+            
+        public static int K_CONSENT_MAX = 20;
+        public static int K_SERVICE_MAX = 99;
+        public static int K_CURRENCY_MAX = 99;
+        public static int K_CHANNEL_MAX = 99;
+        public static int K_CHANNEL_MIN = 0;
+        public static int K_SIGN_HASH_MAX = 128;
+        public static int K_SIGN_HASH_MIN = 24;
+            
         public const int K_DEVICE_IDENTIFIER_LENGTH_MIN = 32;
         public const string K_EMAIL_EREG_PATTERN = @"^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
         public const int K_EMAIL_LENGTH_MAX = 128;
@@ -227,9 +181,6 @@ namespace GDFFoundation
         /// </summary>
         public const string K_HASHTAG = "#";
 
-        public const int K_LOGIN_LENGTH_MAX = 128;
-        public const int K_LOGIN_LENGTH_MIN = 6;
-
         /// <summary>
         ///     The character used to represent a minus sign.
         /// </summary>
@@ -243,8 +194,6 @@ namespace GDFFoundation
         public const int K_PASSWORD_LENGTH_MAX = 128;
         public const int K_PASSWORD_LENGTH_MIN = 12;
         public const string K_PASSWORD_REQUIRE = "one uppercase, one lowercase, one number and one special (not a letter, number or space)";
-        public const string K_PROJECT_EXCEPTION_CATEGORY = "PRJ";
-        public const int K_PROJECT_EXCEPTION_INDEX = 30000;
 
         /// <summary>
         ///     The global reference area for Game-Data-Forge.
@@ -286,11 +235,6 @@ namespace GDFFoundation
         /// </summary>
         public const string K_ReturnLine = "\n";
 
-        public const string K_SERVICE_EXCEPTION_CATEGORY = "SRV";
-        public const int K_SERVICE_EXCEPTION_INDEX = 24000;
-        public const string K_SIGN_EXCEPTION_CATEGORY = "SIG";
-        public const int K_SIGN_EXCEPTION_INDEX = 22000;
-
         /// <summary>
         ///     Represents the length of a stat key.
         /// </summary>
@@ -299,19 +243,12 @@ namespace GDFFoundation
         public const int K_STORAGE_BLOCK_SIZE_LENGTH = 2048;
 
         public const int K_STORAGE_SYNC_LIMIT = 200;
-        public const string K_SYNC_EXCEPTION_CATEGORY = "SYC";
-        public const int K_SYNC_EXCEPTION_INDEX = 90000;
-        public const string K_TOKEN_EXCEPTION_CATEGORY = "TKN";
-        public const int K_TOKEN_EXCEPTION_INDEX = 25000;
 
         /// <summary>
         ///     Represents the length of a token.
         /// </summary>
         public const int K_TOKEN_LENGHT = 64;
 
-        public const string K_UNICITY_EXCEPTION_CATEGORY = "UNY";
-
-        public const int K_UNICITY_EXCEPTION_INDEX = 10000;
 
         #endregion
 

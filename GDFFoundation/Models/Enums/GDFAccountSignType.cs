@@ -72,17 +72,4 @@ namespace GDFFoundation
         /// </summary>
         Discord = 30, // NEVER CHANGE INT VALUE !
     }
-
-    [Serializable]
-    public enum GDFOAuthKind : int
-    {
-        None = GDFAccountSignType.None,
-        Facebook = GDFAccountSignType.Facebook,
-        Google = GDFAccountSignType.Google,
-        Apple = GDFAccountSignType.Apple,
-        Microsoft = GDFAccountSignType.Microsoft,
-        Twitter = GDFAccountSignType.Twitter,
-        LinkedIn = GDFAccountSignType.LinkedIn,
-        Discord = GDFAccountSignType.Discord,
-    }
 }

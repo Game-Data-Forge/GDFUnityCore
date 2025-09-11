@@ -2521,18 +2521,17 @@ namespace GDFFoundation
         TM = Turkmenistan,
 
         /// <summary>
-        /// Represents the country code for the Turks and Caicos Islands.
-        /// This value is a member of the <see cref="Country"/> enumeration.
+        /// Represents the country  Turks and Caicos Islands in the <see cref="Country"/> enumeration.
         /// </summary>
         TC = TurksAndCaicosIslands,
 
         /// <summary>
-        /// Represents the country Tuvalu (TV) in the <see cref="Country"/> enumeration.
+        /// Represents the country Tuvalu in the <see cref="Country"/> enumeration.
         /// </summary>
         TV = Tuvalu,
 
         /// <summary>
-        /// Represents the country Uganda in the <see cref="Country"/> enum.
+        /// Represents the country Uganda in the <see cref="Country"/> enumeration.
         /// </summary>
         UG = Uganda,
 
@@ -2584,7 +2583,6 @@ namespace GDFFoundation
 
         /// <summary>
         /// Represents the United States Virgin Islands in the <see cref="Country"/> enumeration.
-        /// This value corresponds to the designation for the Virgin Islands.
         /// </summary>
         VI = VirginIslandsUS,
 

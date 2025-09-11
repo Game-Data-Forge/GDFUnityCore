@@ -9,7 +9,7 @@ namespace GDFUnity.Editor
         internal ButtonList buttons;
         internal Environment environment;
         internal CountryField country;
-        internal Toggle consent;
+        internal ConsentField consent;
 
         public AccountWindow Window => _window;
 
@@ -46,7 +46,7 @@ namespace GDFUnity.Editor
             country = new CountryField();
             country.style.marginBottom = 10;
 
-            consent = new Toggle("Agree to the TOS");
+            consent = new ConsentField();
             consent.style.marginTop = 40;
 
             AddBody(buttons);

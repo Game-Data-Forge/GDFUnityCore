@@ -72,6 +72,7 @@ namespace GDFUnity
         ///     Send a HTTP DELETE request.
         /// </summary>
         /// <typeparam name="RES">The type of the response body.</typeparam>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="headers">The headers of the request.</param>
         /// <returns>The recieved data.</returns>
@@ -84,6 +85,7 @@ namespace GDFUnity
         ///     Send a HTTP GET request.
         /// </summary>
         /// <typeparam name="RES">The type of the response body.</typeparam>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="headers">The headers of the request.</param>
         /// <returns>The recieved data.</returns>
@@ -96,6 +98,7 @@ namespace GDFUnity
         ///     Send a HTTP POST request.
         /// </summary>
         /// <typeparam name="RES">The type of the response body.</typeparam>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="headers">The headers of the request.</param>
         /// <param name="payload">The payload of the request.</param>
@@ -109,6 +112,7 @@ namespace GDFUnity
         ///     Send a HTTP PUT request.
         /// </summary>
         /// <typeparam name="RES">The type of the response body.</typeparam>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="headers">The headers of the request.</param>
         /// <param name="payload">The payload of the request.</param>
@@ -140,6 +144,7 @@ namespace GDFUnity
         ///     Send a HTTP request.
         /// </summary>
         /// <typeparam name="RES">The type of the response body.</typeparam>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="method">The HTTP method of the request.</param>
         /// <param name="headers">The headers of the request.</param>
@@ -161,6 +166,7 @@ namespace GDFUnity
         /// <summary>
         ///     Get the HTTP Response of the request.
         /// </summary>
+        /// <param name="handler"></param>
         /// <param name="url">The full URL of the request.</param>
         /// <param name="method">The HTTP method of the request.</param>
         /// <param name="headers">The headers of the request.</param>

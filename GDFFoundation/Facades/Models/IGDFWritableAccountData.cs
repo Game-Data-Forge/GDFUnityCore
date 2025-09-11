@@ -9,7 +9,7 @@
 
 namespace GDFFoundation
 {
-    public interface IGDFWritableAccountData : IGDFWritableData, IGDFAccountData
+    public interface IWritableFieldAccount : IGDFWritableData, IFieldAccount
     {
         #region Instance fields and properties
 

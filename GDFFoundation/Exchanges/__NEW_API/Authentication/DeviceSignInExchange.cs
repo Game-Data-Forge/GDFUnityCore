@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class DeviceSignInExchange : IDeviceSign, ISignChannel
+    public class DeviceSignInExchange : IFieldDevice, IFieldChannel
     {
         #region Instance fields and properties
 

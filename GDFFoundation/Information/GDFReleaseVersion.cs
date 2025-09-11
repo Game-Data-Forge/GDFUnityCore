@@ -139,18 +139,7 @@ namespace GDFFoundation
                 Built++;
             }
         }
-
-        /// <summary>
-        ///     Converts the GDFReleaseVersion object to a string representation.
-        /// </summary>
-        /// <returns>
-        ///     A string representation of the GDFReleaseVersion object in the format
-        ///     "\"{Namespace}\", \"{GDFConstants.GDF3Assemblies}/{Path}\", {Major}, {Minor}, {Built}".
-        /// </returns>
-        public string ToNew()
-        {
-            return "\"" + Namespace + "\", \"\" + GDFConstants.GDF3Assemblies + \"/" + Path.Replace(GDFConstants.GDF3Assemblies, "") + "\", " + Major.ToString() + ", " + Minor.ToString() + ", " + Built.ToString();
-        }
+        
 
         /// <summary>
         ///     Returns a string representation of the version in the format "Major.Minor.Build".

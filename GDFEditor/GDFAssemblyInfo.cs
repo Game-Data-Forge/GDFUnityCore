@@ -13,16 +13,22 @@ namespace GDFEditor
     public class GDFAssemblyInfo : GDFAssemblyInformation<GDFAssemblyInfo>
         {
             /// <summary>
+            /// Retrieves the Configuration used to build this DLL.
+            /// </summary>
+            /// <returns>The configuration used as a <see cref="string"/>.</returns>
+            public override string Configuration() => "Debug";
+        
+            /// <summary>
             /// Retrieves the full Git commit hash.
             /// </summary>
             /// <returns>The full commit hash as a <see cref="string"/>.</returns>
-            public override string GitCommit() => "f5d9fa10b881f25481ab84fc53fb5631f136e2be";
+            public override string GitCommit() => "349a0e48ba6f80ef069160944e62db48e600cb9a";
             
             /// <summary>
             /// Retrieves the short Git commit hash.
             /// </summary>
             /// <returns>The short commit hash as a <see cref="string"/>.</returns>
-            public override string GitShortCommit() => "f5d9fa10b";
+            public override string GitShortCommit() => "349a0e48b";
 
             /// <summary>
             /// Retrieves the name of the Git branch for this assembly.
@@ -48,7 +54,7 @@ namespace GDFEditor
             /// Retrieves the date of the last Git commit.
             /// </summary>
             /// <returns>The date of the last Git commit as a <see cref="string"/>.</returns>
-            public override string GitLastCommitDate() => "2025-08-21T14:39:18+02:00";
+            public override string GitLastCommitDate() => "2025-09-09T17:56:21+02:00";
 
             /// <summary>
             /// Indicates whether the current state of the Git repository has uncommitted changes.
@@ -90,7 +96,7 @@ namespace GDFEditor
             /// Retrieves the build date of the assembly.
             /// </summary>
             /// <returns>The build date as a <see cref="string"/>.</returns>
-            public override string BuildDate() => "2025-08-21 12:51:59-dirty";
+            public override string BuildDate() => "2025-09-10 16:21:41-dirty";
 
             /// <summary>
             /// Determines whether the NuGet SDK is used for the current assembly information setup.
@@ -102,13 +108,13 @@ namespace GDFEditor
             // /// Retrieves the version information of the assembly.
             // /// </summary>
             // /// <returns>The version string of the assembly as a <see cref="string"/>.</returns>
-            //public override string Version() => "2025.821.1251-dirty";
+            //public override string Version() => "2025.910.1621-dirty";
 
             // /// <summary>
             // /// Retrieves the file version information of the assembly.
             // /// </summary>
             // /// <returns>The file version of the assembly as a <see cref="string"/>.</returns>
-            //public override string FileVersion() => "2025.821.1251-dirty";
+            //public override string FileVersion() => "2025.910.1621-dirty";
 
             /// <summary>
             /// Gets the target .NET version of the project.

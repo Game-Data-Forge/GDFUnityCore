@@ -28,97 +28,70 @@ namespace GDFUnity
 
         public override Job Register(Country country, string email)
         {
-            lock (_manager.LOCK)
+            return _manager.JobLocker(() => Job.Run(handler =>
             {
-                _manager.EnsureUseable();
+                handler.StepAmount = 3;
+                long projectId = _engine.Configuration.Reference;
 
-                _manager.job = Job.Run(handler =>
+                EmailPasswordSignUpExchange payload = new EmailPasswordSignUpExchange()
                 {
-                    using IDisposable _ = _manager.Lock();
+                    Channel = _engine.Configuration.Channel,
+                    Email = email,
+                    LanguageIso = _LANGUAGE,
+                    Consent = _manager.Consent.AgreedToLicense,
+                    ConsentVersion = _manager.Consent.LicenseVersion,
+                    ConsentName = _manager.Consent.LicenseName,
+                    Country = country
+                };
 
-                    handler.StepAmount = 3;
-                    long projectId = _engine.Configuration.Reference;
+                Debug.LogWarning("Game consent is hard written to 1.0.0 !");
 
-                    EmailPasswordSignUpExchange payload = new EmailPasswordSignUpExchange()
-                    {
-                        Channel = _engine.Configuration.Channel,
-                        Email = email,
-                        LanguageIso = _LANGUAGE,
-                        Consent = true,
-                        ConsentVersion = "1.0.0",
-                        GameConsentVersion = "1.0.0",
-                        Country = country
-                    };
-
-                    Debug.LogWarning("Game consent is hard written to 1.0.0 !");
-
-                    string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-up");
-                    _manager.Post<string>(handler.Split(), url, payload);
-                }, "Email/password register");
-
-                return _manager.job;
-            }
+                string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-up");
+                _manager.Post<string>(handler.Split(), url, payload);
+            }, "Email/password register"));
         }
 
         public override Job Rescue(Country country, string email)
         {
-            lock (_manager.LOCK)
+            return _manager.JobLocker(() => Job.Run(handler =>
             {
-                _manager.EnsureUseable();
+                handler.StepAmount = 3;
+                long projectId = _engine.Configuration.Reference;
 
-                _manager.job = Job.Run(handler =>
+                EmailPasswordSignLostExchange payload = new EmailPasswordSignLostExchange()
                 {
-                    using IDisposable _ = _manager.Lock();
+                    Email = email,
+                    Country = country,
+                    LanguageIso = _LANGUAGE,
+                    ProjectReference = projectId
+                };
 
-                    handler.StepAmount = 3;
-                    long projectId = _engine.Configuration.Reference;
-
-                    EmailPasswordSignLostExchange payload = new EmailPasswordSignLostExchange()
-                    {
-                        Email = email,
-                        Country = country,
-                        LanguageIso = _LANGUAGE,
-                        ProjectReference = projectId
-                    };
-
-                    string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-lost");
-                    _manager.Post<string>(handler.Split(), url, payload);
-                }, "Email/password sign rescue");
-
-                return _manager.job;
-            }
+                string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-lost");
+                _manager.Post<string>(handler.Split(), url, payload);
+            }, "Email/password sign rescue"));
         }
 
         public override Job Login(Country country, string email, string password)
         {
-            lock (_manager.LOCK)
+            return _manager.JobLocker(() => Job.Run(handler =>
             {
-                _manager.EnsureUseable();
+                handler.StepAmount = 3;
+                long projectId = _engine.Configuration.Reference;
 
-                _manager.job = Job.Run(handler =>
+                _manager.ResetToken(handler.Split());
+                string bearer;
+                EmailPasswordSignInExchange payload = new EmailPasswordSignInExchange()
                 {
-                    using IDisposable _ = _manager.Lock();
+                    Email = email,
+                    Password = password,
+                    Channel = _engine.Configuration.Channel,
+                    Country = country
+                };
 
-                    handler.StepAmount = 3;
-                    long projectId = _engine.Configuration.Reference;
-
-                    _manager.ResetToken(handler.Split());
-                    string bearer;
-                    EmailPasswordSignInExchange payload = new EmailPasswordSignInExchange()
-                    {
-                        Email = email,
-                        Password = password,
-                        Channel = _engine.Configuration.Channel,
-                        Country = country
-                    };
-
-                    string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-in");
-                    bearer = _manager.Post<string>(handler.Split(), url, payload);
-                    _manager.SetToken(handler.Split(), new TokenStorage(country, bearer));
-                }, "Email/password login");
-
-                return _manager.job;
-            }
+                string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-in");
+                bearer = _manager.Post<string>(handler.Split(), url, payload);
+                _manager.SetToken(handler.Split(), new TokenStorage(country, bearer));
+            }, "Email/password login"));
         }
     }
 }

@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class SignRevokeExchange : ISignReference
+    public class SignRevokeExchange : IFieldReference
     {
         #region Instance fields and properties
 

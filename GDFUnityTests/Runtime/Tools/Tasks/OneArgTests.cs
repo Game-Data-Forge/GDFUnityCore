@@ -196,19 +196,20 @@ namespace Tools.Tasks
         [UnityTest]
         public IEnumerator CanCreateASuccessfulTask()
         {
-            UnityJob task = Job.Success();
+            UnityJob<bool> task = Job<bool>.Success(false);
 
             Assert.AreEqual(task.State, JobState.Success);
 
             yield return task;
 
             Assert.AreEqual(task.State, JobState.Success);
+            Assert.AreEqual(task.Result, false);
         }
 
         [UnityTest]
         public IEnumerator CanCreateAFailedTask()
         {
-            UnityJob task = Job.Failure(new TestException("Boop !"));
+            UnityJob task = Job<bool>.Failure(new TestException("Boop !"));
 
             Assert.AreEqual(task.State, JobState.Failure);
 
@@ -217,6 +218,58 @@ namespace Tools.Tasks
             Assert.AreEqual(task.State, JobState.Failure);
             Assert.AreEqual(task.Error.GetType(), typeof(TestException));
             Assert.IsNotNull(task.Error);
+        }
+
+        [UnityTest]
+        public IEnumerator CanSplitJobProgress()
+        {
+            UnityJob<bool> task = Job<bool>.Run(handler =>
+            {
+                float progress = 0, last = 0;
+                Func<IJobHandler, float> func = handler =>
+                {
+                    float last = progress;
+                    handler.StepAmount = 4;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    return progress;
+                };
+
+                handler.StepAmount = 3;
+
+                progress = func(handler.Split());
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+
+                progress = handler.Step();
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+
+                progress = func(handler.Split());
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+
+                return true;
+            });
+
+            yield return task;
+
+            Assert.AreEqual(task.State, JobState.Success);
+            Assert.AreEqual(task.Result, true);
         }
 
         private bool Runner(IJobHandler handler)

@@ -54,15 +54,15 @@ namespace GDFUnity.Editor
         protected void DefaultValidation(List<GDFException> result, IEditorConfiguration configuration)
         {
             base.DefaultValidation(result, configuration);
-            
+
             if (string.IsNullOrWhiteSpace(configuration.Dashboard))
             {
-                result.Add (EditorExceptions.InvalidDashboard);
+                result.Add(EditorExceptions.InvalidDashboard);
             }
 
             if (configuration.Channels.Count == 0)
             {
-                result.Add (EditorExceptions.InvalidChannels);
+                result.Add(EditorExceptions.InvalidChannels);
             }
         }
 
@@ -70,7 +70,7 @@ namespace GDFUnity.Editor
         {
             if (configuration.Credentials.Count != Enum.GetValues(typeof(ProjectEnvironment)).Length)
             {
-                result.Add (EditorExceptions.InvalidCredentials);
+                result.Add(EditorExceptions.InvalidCredentials);
             }
         }
 
@@ -101,7 +101,7 @@ namespace GDFUnity.Editor
             {
                 return ProjectSettings.Instance.Load<EditorConfiguration>(_CFG_FILE_NAME);
             }
-            catch 
+            catch
             {
                 throw RuntimeExceptions.NotCastable;
             }
@@ -114,12 +114,16 @@ namespace GDFUnity.Editor
 
         public IJob<DateTime> ContactDashboard(string dashboardAddress)
         {
-            return _manager.ContactDashboard(dashboardAddress);
+            GDFManagers.Start();
+
+            GDFManagers.AddSingleton<IEditorConfigurationEngine>(this);
+
+            return GDFManagers.Lock(typeof(IEditorConfigurationEngine), () => _manager.ContactDashboard(dashboardAddress));
         }
 
         public IJob<GDFProjectConfiguration> RequestConfigurationUpdate(string dashboardAddress, string role)
         {
-            return _manager.RequestConfigurationUpdate(dashboardAddress, role);
+            return GDFManagers.Lock(typeof(IEditorConfigurationEngine), () => _manager.RequestConfigurationUpdate(dashboardAddress, role));
         }
 
         public IRuntimeConfiguration CreateRuntimeConfiguration()

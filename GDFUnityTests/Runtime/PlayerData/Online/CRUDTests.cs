@@ -10,6 +10,10 @@ namespace PlayerData.Online
 
         protected override IEnumerator Connect()
         {
+            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+
+            GDF.Account.Consent.AgreedToLicense = true;
+            
             UnityJob task = GDF.Account.Authentication.Device.Login(country);
             yield return WaitJob(task);
         }

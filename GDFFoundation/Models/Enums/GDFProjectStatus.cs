@@ -22,19 +22,14 @@ namespace GDFFoundation
     [Serializable]
     public enum GDFProjectStatus
     {
-        /// <summary>
-        ///     Project is active
-        /// </summary>
-        Active = 0,
-
-        /// <summary>
-        ///     Project is upgrading studio data ... come back later
-        /// </summary>
+        Valid = 0,
         Upgrading = 1,
-
-        /// <summary>
-        ///     Project is inactive
-        /// </summary>
         Inactive = 2,
+        InTransfert = 3,
+        
+        OverflowOfTheFreePlan = 6,
+        Unpayed = 7,
+        LastWarning = 8,
+        Deletable = 9,
     }
 }

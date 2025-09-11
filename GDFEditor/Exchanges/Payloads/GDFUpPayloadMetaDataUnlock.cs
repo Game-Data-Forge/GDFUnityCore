@@ -17,6 +17,9 @@ namespace GDFEditor
         /// </summary>
         public string LockerName { set; get; } = GDFUpPayloadMetaDataLock.K_UNKNOWN;
 
+        /// <summary>
+        /// Gets or sets the tracking identifier for the instance of <see cref="GDFUpPayloadMetaDataUnlock"/>.
+        /// </summary>
         public int TrackId { set; get; }
 
     }

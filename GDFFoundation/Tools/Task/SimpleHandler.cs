@@ -68,8 +68,9 @@ namespace GDFFoundation
             return this;
         }
 
-        public void Step()
+        public float Step()
         {
+            return 0;
         }
 
         public void ThrowIfCancelled()

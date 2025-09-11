@@ -21,7 +21,7 @@ namespace GDFFoundation
     /// </summary>
     [Serializable]
     [GDFDatabaseIndex("StatIndex", nameof(ProjectReference), nameof(StatKey))]
-    public abstract class GDFProjectStat : GDFBasicData, IGDFWritableLongReference, IGDFAccountRange
+    public abstract class GDFProjectStat : GDFBasicData, IGDFWritableLongReference, IGDFRangedData
     {
         #region Static methods
 
@@ -81,7 +81,7 @@ namespace GDFFoundation
         /// <summary>
         ///     Represents the range of a project.
         /// </summary>
-        public short Range { set; get; }
+        public int Range { set; get; }
 
         #endregion
 

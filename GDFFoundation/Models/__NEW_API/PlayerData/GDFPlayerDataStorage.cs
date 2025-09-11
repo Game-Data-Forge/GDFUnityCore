@@ -19,7 +19,7 @@ namespace GDFFoundation
     ///     Class for storing player data.
     /// </summary>
     [Serializable]
-    public class GDFPlayerDataStorage : IGDFStorageData, IGDFWritableAccountData, IGDFWritableStringReference, IGDFRangedData
+    public class GDFPlayerDataStorage : IGDFStorageData, IWritableFieldAccount, IGDFWritableStringReference, IGDFRangedData
     {
         #region Instance fields and properties
 

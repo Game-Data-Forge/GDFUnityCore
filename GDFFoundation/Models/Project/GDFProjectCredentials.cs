@@ -22,7 +22,13 @@ namespace GDFFoundation
     public class GDFProjectCredentials : IGDFDbStorage, IGDFWritableData, IGDFWritableLongReference
     {
         #region Instance fields and properties
+        [GDFDbDefault(GDFEnvironmentStatus.Active)]
+        public GDFEnvironmentStatus EnvironmentStatus { set; get; } = GDFEnvironmentStatus.Active;
         
+        [GDFDbDefault(GDFProjectStatus.Valid)]
+        public GDFProjectStatus Status { get; set; } = GDFProjectStatus.Valid;
+        [GDFDbDefault(GDFProjectPlan.Spark)]
+        public GDFProjectPlan Plan { get; set; } = GDFProjectPlan.Spark;
         [GDFDbLength(128)]
         public string SignUpApiUrl { get; set; } = string.Empty;
         [GDFDbLength(128)]
@@ -53,11 +59,6 @@ namespace GDFFoundation
         [GDFDbLength(128)]
         public string SecretKey { set; get; } = GDFRandom.RandomStringKey();
 
-        /// <summary>
-        ///     The project status : active, inactive, upgrading data
-        /// </summary>
-        // TODO rename
-        public GDFEnvironmentStatus Status { set; get; } = GDFEnvironmentStatus.Active;
 
         [GDFDbUnique(constraintName = "TreatKey")]
         [GDFDbLength(128)]

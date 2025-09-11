@@ -20,6 +20,9 @@ namespace GDFRuntime
         public Job LoadCommonGameSave();
         public Job LoadGameSave(byte gameSave);
         public Job DeleteGameSave();
+        public Job DeleteGameSave(byte gameSave);
+
+        public bool GameSaveExists(byte gameSave);
 
         public void Add(GDFPlayerData data, bool defaultGameSave = false);
         public void Add(string reference, GDFPlayerData data, bool defaultGameSave = false);
@@ -38,6 +41,7 @@ namespace GDFRuntime
         public void Delete(GDFPlayerData data);
 
         public Job Save();
+        public Job SaveToGameSave(byte gameSave);
         public Job Sync();
 
         public Job Purge();

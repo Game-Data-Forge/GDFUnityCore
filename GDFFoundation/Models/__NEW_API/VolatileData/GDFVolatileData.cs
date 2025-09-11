@@ -20,7 +20,7 @@ namespace GDFFoundation
     ///     This class is an abstract class and cannot be instantiated directly.
     /// </summary>
     [Serializable]
-    public abstract class GDFVolatileData : IGDFDbStorage, IGDFRangedData, IGDFWritableAccountData, IGDFWritableLongReference
+    public abstract class GDFVolatileData : IGDFDbStorage, IGDFRangedData, IWritableFieldAccount, IGDFWritableLongReference
     {
         #region Static methods
 

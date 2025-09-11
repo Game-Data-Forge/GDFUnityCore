@@ -17,6 +17,8 @@ namespace GDFRuntime
         public IRuntimeTypeManager TypeManager { get; }
         public IRuntimePlayerPersistanceManager PersistanceManager { get; }
 
+        public T Get<T>();
+
         public Job Stop();
         public void Kill();
     }

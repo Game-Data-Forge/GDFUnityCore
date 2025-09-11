@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using GDFFoundation;
 using GDFRuntime;
@@ -8,8 +7,6 @@ namespace GDFUnity
 {
     public abstract class CoreAccountManager : APIManager, IRuntimeAccountManager
     {
-        internal readonly object LOCK = new object();
-
         public class TokenStorage
         {
             [JsonIgnore]
@@ -54,14 +51,11 @@ namespace GDFUnity
         protected IRuntimeEngine _engine;
         protected Dictionary<string, string> _headers = new Dictionary<string, string>();
 
-        internal Job job = null;
-        protected override Job Job => job;
-        
         public long Reference => Token?.Account ?? -1;
         public int Range => Token?.Range ?? -1;
         public Country Country => Token?.Country ?? Country.None;
 
-        protected MemoryJwtToken Token => storage?.data;
+        protected internal MemoryJwtToken Token => storage?.data;
         public string Bearer => storage?.Bearer;
         public string LocalIdentity => "0@LOCAL";
         public string Identity
@@ -87,6 +81,7 @@ namespace GDFUnity
 
         public abstract IRuntimeAccountManager.IRuntimeAuthentication Authentication { get; }
         public abstract IRuntimeAccountManager.IRuntimeCredentials Credentials { get; }
+        public abstract IRuntimeAccountManager.IRuntimeConsent Consent { get; }
 
         public CoreAccountManager(IRuntimeEngine engine)
         {
@@ -97,8 +92,6 @@ namespace GDFUnity
 
             _accountDeleting = new Notification(_engine.ThreadManager);
             _accountDeleted = new Notification(_engine.ThreadManager);
-            
-            State = ManagerState.Ready;
         }
         
         internal string GenerateURL(Country country, string urlParts)
@@ -137,11 +130,6 @@ namespace GDFUnity
             return Delete<T>(handler, url, _headers);
         }
 
-        internal IDisposable Lock()
-        {
-            return Locker.Lock(this);
-        }
-
         internal void ResetToken(IJobHandler handler)
         {
             TokenStorage lastValue = storage;
@@ -153,22 +141,27 @@ namespace GDFUnity
         internal void SetToken(IJobHandler handler, TokenStorage value)
         {
             storage = value;
-            AccountChanged?.Invoke(handler, storage?.data);
+            AccountChanged?.Invoke(_job, handler, storage?.data);
         }
 
         public abstract Job Delete();
     }
 
-    public class CoreAccountManager<T, U> : CoreAccountManager where T : CoreAccountAuthentication where U : CoreAccountCredentials
+    public abstract class CoreAccountManager<T, U, V> : CoreAccountManager
+        where T : CoreAccountAuthentication
+        where U : CoreAccountCredentials
+        where V : CoreAccountConsent
     {
         protected T _authentication;
         protected U _credentials;
+        protected V _consent;
 
         public override bool IsAuthenticated => storage != null;
         public override bool IsLocal => Reference == 0;
 
         public override IRuntimeAccountManager.IRuntimeAuthentication Authentication => _authentication;
         public override IRuntimeAccountManager.IRuntimeCredentials Credentials => _credentials;
+        public override IRuntimeAccountManager.IRuntimeConsent Consent => _consent;
 
         public CoreAccountManager(IRuntimeEngine engine) : base(engine)
         {
@@ -180,36 +173,27 @@ namespace GDFUnity
             {
                 throw GDF.Exceptions.NotAuthenticated;
             }
-            
-            lock (LOCK)
+
+            return JobLocker(() => Job.Run(handler =>
             {
-                EnsureUseable();
+                handler.StepAmount = 3;
 
-                job = Job.Run(handler =>
+                MemoryJwtToken token = Token;
+
+                AccountDeleting.Invoke(handler.Split());
+
+                if (!IsLocal)
                 {
-                    using IDisposable _ = Lock();
+                    string url = GenerateURL(token.Country, "/api/v1/accounts/" + token.Account);
+                    Delete<int>(handler.Split(), url);
+                }
+                else
+                {
+                    handler.Step();
+                }
 
-                    handler.StepAmount = 3;
-
-                    MemoryJwtToken token = Token;
-
-                    AccountDeleting.Invoke(handler.Split());
-
-                    if (!IsLocal)
-                    {
-                        string url = GenerateURL(token.Country, "/api/v1/accounts/" + token.Account);
-                        Delete<int>(handler.Split(), url);
-                    }
-                    else
-                    {
-                        handler.Step();
-                    }
-
-                    AccountDeleted.Invoke(handler.Split());
-                }, "Delete Account");
-
-                return job;
-            }
+                AccountDeleted.Invoke(_job, handler.Split());
+            }, "Delete Account"));
         }
     }
 }

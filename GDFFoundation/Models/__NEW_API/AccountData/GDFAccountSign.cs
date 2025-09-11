@@ -10,170 +10,34 @@
 #region
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 #endregion
 
 namespace GDFFoundation
 {
-    [Serializable]
-    public class SignListExchange : IApiResult
-    {
-        #region Instance fields and properties
-
-        public List<GDFAccountSign> Signs { get; set; }
-
-        #region From interface IApiResult
-
-        [GDFDbLength(256)]
-        public string Status { get; set; }
-        public bool Success { get; set; }
-
-        #endregion
-
-        #endregion
-    }
-
     /// <summary>
     ///     Represents an account sign information.
     /// </summary>
     [Serializable]
-    public class GDFAccountSign : GDFAccountData // TODO: Check method SHOULD NOT return a bool if they throw on error !
+    public class GDFAccountSign :  GDFAccountData , IFieldSignHash
     {
         #region Static methods
-
-        public static bool CheckChannel(short channel)
-        {
-            if (channel < GDFConstants.K_CHANNEL_MIN)
-            {
-                throw new FormatException($"The field `{nameof(ISignChannel.Channel)}` must be a positive integer.");
-            }
-
-            if (channel > GDFConstants.K_CHANNEL_MAX)
-            {
-                throw new FormatException($"The field `{nameof(ISignChannel.Channel)}` must lower than 99.");
-            }
-
-            return true;
-        }
-
-        public static bool CheckDeviceIdentifier(string identifier)
-        {
-            if (identifier.Length < GDFConstants.K_DEVICE_IDENTIFIER_LENGTH_MIN)
-            {
-                throw new FormatException($"The field `{nameof(IDeviceSign.UniqueIdentifier)}` is too short.");
-            }
-
-            return true;
-        }
-
-        public static bool CheckEmail(string email)
-        {
-            if (email.Length < GDFConstants.K_EMAIL_LENGTH_MIN)
-            {
-                throw new FormatException($"The field `{nameof(IEmailSign.Email)}` is too short.");
-            }
-
-            if (email.Length > GDFConstants.K_EMAIL_LENGTH_MAX)
-            {
-                throw new FormatException($"The field `{nameof(IEmailSign.Email)}` is too long.");
-            }
-
-            if (!Regex.IsMatch(email, GDFConstants.K_EMAIL_EREG_PATTERN))
-            {
-                throw new FormatException($"The field `{nameof(IEmailSign.Email)}` is not a valid email address.");
-            }
-
-            return true;
-        }
-
-        public static bool CheckLogin(string login)
-        {
-            if (login.Length < GDFConstants.K_LOGIN_LENGTH_MIN)
-            {
-                throw new FormatException($"The field `login` is too short.");
-            }
-
-            if (login.Length > GDFConstants.K_LOGIN_LENGTH_MAX)
-            {
-                throw new FormatException($"The field `login` is too long.");
-            }
-
-            return true;
-        }
-
-        public static bool CheckOAuthAccessToken(string oAuthAccessToken)
-        {
-            if (oAuthAccessToken.Length < GDFConstants.K_O_AUTH_ACCESS_TOKEN_LENGTH_MIN)
-            {
-                throw new FormatException($"The field `{nameof(IOAuthSign.AccessToken)}` is too short.");
-            }
-
-            return true;
-        }
-
-        public static bool CheckOAuthKind(GDFOAuthKind oAuthKind)
-        {
-            if (oAuthKind == GDFOAuthKind.None)
-            {
-                throw new FormatException();
-            }
-
-            return true;
-        }
-
-        public static bool CheckPassword(string password)
-        {
-            if (password.Length < GDFConstants.K_PASSWORD_LENGTH_MIN)
-            {
-                throw new FormatException($"The field `{nameof(IPasswordSign.Password)}` is too short.");
-            }
-
-            if (password.Length > GDFConstants.K_PASSWORD_LENGTH_MAX)
-            {
-                throw new FormatException($"The field `{nameof(IPasswordSign.Password)}` is too long.");
-            }
-
-            if (!Regex.IsMatch(password, GDFConstants.K_PASSWORD_EREG_PATTERN))
-            {
-                throw new FormatException($"The field `{nameof(IPasswordSign.Password)}` must constaint {GDFConstants.K_PASSWORD_REQUIRE}");
-            }
-
-            return true;
-        }
-
-        public static bool CheckProject(long project)
-        {
-            if (project < 1)
-            {
-                throw new FormatException();
-                return false;
-            }
-
-            return true;
-        }
-
-
         /// <summary>
         ///     Creates a device sign using the specified device type, unique identifier, and project reference.
         /// </summary>
         /// <param name="deviceKind">The type of the device (e.g., iOS, Android, etc.).</param>
         /// <param name="uniqueIdentifier">The unique identifier (UDID) of the device.</param>
-        /// <param name="projectReference">The ID of the project associated with the device.</param>
+        /// <param name="project">The ID of the project associated with the device.</param>
         /// <returns>A GDFAccountSign instance containing the generated device sign information.</returns>
-        public static GDFAccountSign CreateDeviceSign(string uniqueIdentifier, long projectReference)
+        public static GDFAccountSign CreateDeviceSign(string uniqueIdentifier, long project)
         {
-            CheckDeviceIdentifier(uniqueIdentifier);
-            CheckProject(projectReference);
-
             GDFAccountSign result = new GDFAccountSign();
-            result.Project = projectReference;
+            result.Project = project;
             result.SignType = GDFAccountSignType.DeviceId;
-            result.Name = GDFSecurityTools.CryptAes(result.SignType.ToString(), projectReference.ToString(), projectReference.ToString());
-            string typeObfuscation = DeviceTypeObfuscation(result.SignType);
-            result.SignHash = typeObfuscation + "-" + GDFSecurityTools.GenerateSha(uniqueIdentifier + projectReference) + "-" + GDFSecurityTools.GenerateSha(uniqueIdentifier);
+            result.Name = GDFSecurityTools.CryptAes(result.SignType.ToString(), project.ToString(), project.ToString());
+            string typeObfuscation = SignTypeObfuscation(result.SignType);
+            result.SignHash = typeObfuscation + "-" + GDFSecurityTools.GenerateSha(uniqueIdentifier + project) + "-" + GDFSecurityTools.GenerateSha(uniqueIdentifier);
             result.RescueHash = result.SignHash;
             return result;
         }
@@ -183,20 +47,17 @@ namespace GDFFoundation
         /// </summary>
         /// <param name="email">The email address for the account</param>
         /// <param name="password">The password for the account</param>
-        /// <param name="projectReference">The project ID</param>
+        /// <param name="project">The project ID</param>
         /// <returns>A new instance of GDFAccountSign with the specified email, password, and project ID</returns>
-        public static GDFAccountSign CreateEmailPassword(string email, string password, long projectReference)
+        public static GDFAccountSign CreateEmailPassword(string email, string password, long project)
         {
-            CheckProject(projectReference);
-            CheckEmail(email);
-            CheckPassword(password);
             GDFAccountSign rReturn = new GDFAccountSign();
-            rReturn.Project = projectReference;
-            rReturn.Name = GDFSecurityTools.CryptAes(EmailToPartialString(email), projectReference.ToString(), projectReference.ToString());
-            string tType = DeviceTypeObfuscation(rReturn.SignType);
+            rReturn.Project = project;
+            rReturn.Name = GDFSecurityTools.CryptAes(EmailToPartialString(email), project.ToString(), project.ToString());
+            string tType = SignTypeObfuscation(rReturn.SignType);
             rReturn.SignType = GDFAccountSignType.EmailPassword;
-            rReturn.SignHash = tType + "-" + GDFSecurityTools.GenerateSha(email + password + projectReference) + "-" + GDFSecurityTools.GenerateSha(password + email);
-            rReturn.RescueHash = tType + "-" + GDFSecurityTools.GenerateSha(email + projectReference) + "-" + GDFSecurityTools.GenerateSha(email);
+            rReturn.SignHash = tType + "-" + GDFSecurityTools.GenerateSha(email + password + project) + "-" + GDFSecurityTools.GenerateSha(password + email);
+            rReturn.RescueHash = tType + "-" + GDFSecurityTools.GenerateSha(email + project) + "-" + GDFSecurityTools.GenerateSha(email);
             return rReturn;
         }
 
@@ -205,19 +66,16 @@ namespace GDFFoundation
         /// </summary>
         /// <param name="authKind">The type of OAuth provider used for authentication.</param>
         /// <param name="userIdentifier">The identifier of the user, typically provided by the OAuth service.</param>
-        /// <param name="projectReference">The project reference key used to associate the account sign with a specific project.</param>
+        /// <param name="project">The project reference key used to associate the account sign with a specific project.</param>
         /// <returns>A newly created <see cref="GDFAccountSign" /> object configured with the provided details.</returns>
-        public static GDFAccountSign CreateOAuthSign(GDFOAuthKind authKind, string userIdentifier, long projectReference)
+        public static GDFAccountSign CreateOAuthSign(GDFOAuthKind authKind, string userIdentifier, long project)
         {
-            CheckProject(projectReference);
-            CheckOAuthAccessToken(userIdentifier);
-            CheckOAuthKind(authKind);
             GDFAccountSign result = new GDFAccountSign();
-            result.Project = projectReference;
+            result.Project = project;
             result.SignType = (GDFAccountSignType)authKind;
-            result.Name = GDFSecurityTools.CryptAes(result.SignType.ToString(), projectReference.ToString(), projectReference.ToString());
-            string signKind = DeviceTypeObfuscation(result.SignType);
-            result.SignHash = signKind + "-" + GDFSecurityTools.GenerateSha(userIdentifier + projectReference) + "-" + GDFSecurityTools.GenerateSha(userIdentifier);
+            result.Name = GDFSecurityTools.CryptAes(result.SignType.ToString(), project.ToString(), project.ToString());
+            string signKind = SignTypeObfuscation(result.SignType);
+            result.SignHash = signKind + "-" + GDFSecurityTools.GenerateSha(userIdentifier + project) + "-" + GDFSecurityTools.GenerateSha(userIdentifier);
             result.RescueHash = result.SignHash;
             return result;
         }
@@ -225,111 +83,111 @@ namespace GDFFoundation
         /// <summary>
         ///     Obfuscates the device type based on the given sign type.
         /// </summary>
-        /// <param name="sType">The sign type to obfuscate.</param>
+        /// <param name="kind">The sign type to obfuscate.</param>
         /// <returns>The obfuscated device type sign.</returns>
-        private static string DeviceTypeObfuscation(GDFAccountSignType sType)
+        private static string SignTypeObfuscation(GDFAccountSignType kind)
         {
-            string rResult = "";
-
-            switch (sType)
+            string result = "";
+            switch (kind)
             {
                 case GDFAccountSignType.EmailPassword:
-                    rResult = "A";
+                    result = "A";
                 break;
                 case GDFAccountSignType.DeviceId:
-                    rResult = "D";
+                    result = "D";
                 break;
                 case GDFAccountSignType.Facebook:
-                    rResult = "E";
+                    result = "E";
                 break;
                 case GDFAccountSignType.Google:
-                    rResult = "F";
+                    result = "F";
                 break;
                 case GDFAccountSignType.Apple:
-                    rResult = "G";
+                    result = "G";
                 break;
                 case GDFAccountSignType.Microsoft:
-                    rResult = "H";
+                    result = "H";
                 break;
                 case GDFAccountSignType.Twitter:
-                    rResult = "I";
+                    result = "I";
                 break;
                 case GDFAccountSignType.LinkedIn:
-                    rResult = "J";
+                    result = "J";
                 break;
                 case GDFAccountSignType.Discord:
-                    rResult = "K";
+                    result = "K";
                 break;
                 default:
+                    result = "Z";
                 break;
             }
 
-            return rResult;
+            return result;
         }
 
 
         /// <summary>
         ///     Converts the original email address to a partially masked string.
         /// </summary>
-        /// <param name="sOriginalEmail">The original email address.</param>
+        /// <param name="email">The original email address.</param>
         /// <returns>A partially masked string representation of the email address.</returns>
-        public static string EmailToPartialString(string sOriginalEmail)
+        public static string EmailToPartialString(string email)
         {
-            StringBuilder rReturn = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
-            if (sOriginalEmail.Length > 6)
+            if (email.Length > 6)
             {
-                rReturn.Append(sOriginalEmail[0]);
-                rReturn.Append(sOriginalEmail[1]);
-                for (int t = 2; t < sOriginalEmail.Length - 2; t++)
+                result.Append(email[0]);
+                result.Append(email[1]);
+                for (int t = 2; t < email.Length - 2; t++)
                 {
-                    if (sOriginalEmail[t] == '@')
+                    if (email[t] == '@')
                     {
-                        rReturn.Append("@");
+                        result.Append("@");
                     }
-                    else if (sOriginalEmail[t] == ' ')
+                    else if (email[t] == ' ')
                     {
                         // It's a login email password case ... 
-                        rReturn.Append(" / ");
-                        if (sOriginalEmail.Length >= t + 4)
+                        result.Append(" / ");
+                        if (email.Length >= t + 4)
                         {
                             t++;
-                            rReturn.Append(sOriginalEmail[t]);
+                            result.Append(email[t]);
                             t++;
-                            rReturn.Append(sOriginalEmail[t]);
+                            result.Append(email[t]);
                         }
                     }
-                    else if (sOriginalEmail[t] == '.')
+                    else if (email[t] == '.')
                     {
-                        rReturn.Append(".");
+                        result.Append(".");
                     }
                     else
                     {
-                        rReturn.Append("•");
+                        result.Append("•");
                     }
                 }
 
-                rReturn.Append(sOriginalEmail[^2]);
-                rReturn.Append(sOriginalEmail[^1]);
+                result.Append(email[^2]);
+                result.Append(email[^1]);
             }
             else
             {
-                rReturn.Append(sOriginalEmail);
+                result.Append(email);
             }
 
-            return rReturn.ToString();
+            return result.ToString();
         }
 
         /// <summary>
         ///     Generate a rescue hash by concatenating the email and project ID and generating a SHA hash.
         /// </summary>
-        /// <param name="sEmail">The email associated with the account</param>
-        /// <param name="sProject">The ID of the project</param>
+        /// <param name="email">The email associated with the account</param>
+        /// <param name="project">The ID of the project</param>
         /// <returns>The rescue hash</returns>
-        public static string GenerateHashRescue(string sEmail, long sProject)
+        public static string GenerateHashRescue(string email, long project)
         {
-            return GDFSecurityTools.GenerateSha(sEmail + sProject) + "-" +
-                   GDFSecurityTools.GenerateSha(sEmail);
+            return GDFSecurityTools.GenerateSha(email + project) + "-" +
+                   GDFSecurityTools.GenerateSha(email);
         }
 
         #endregion

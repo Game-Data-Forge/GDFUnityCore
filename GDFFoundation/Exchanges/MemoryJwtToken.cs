@@ -16,10 +16,11 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class MemoryJwtToken
+    public class MemoryJwtToken : IFieldsConsent, IFieldAccount
     {
         #region Instance fields and properties
 
+        public string LanguageIso { set; get; } = "en-US";
         public long Account { get; set; }
         public short Channel { get; set; }
         public Country Country { get; set; }
@@ -28,6 +29,11 @@ namespace GDFFoundation
         public int Range { get; set; }
         public string Token { get; set; }
         public DateTime LastSync { get; set; }
+        
+        public bool Consent { get; set; }
+        public ConsentOptions AdditionalOptions { get; set; }
+        public string ConsentVersion { get; set; }
+        public string ConsentName { get; set; }
 
         #endregion
 
@@ -41,6 +47,11 @@ namespace GDFFoundation
             Range = 0;
             Token = string.Empty;
             LastSync = GDFDatetime.Now;
+            Consent = false;
+            AdditionalOptions = ConsentOptions.None;
+            ConsentVersion = "1.0.0";
+            ConsentName = string.Empty;
+            LanguageIso = "en-US";
         }
 
         #endregion

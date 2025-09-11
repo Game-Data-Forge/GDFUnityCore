@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class DeviceSignUpExchange : IDeviceSign, ISignConsent
+    public class DeviceSignUpExchange : IFieldDevice, IFieldsConsent
     {
         #region Instance fields and properties
 
@@ -29,12 +29,14 @@ namespace GDFFoundation
 
         #region From interface ISignConsent
 
+        public string LanguageIso { set; get; } = "en-US";
+
         public short Channel { get; set; } = 0;
         public bool Consent { get; set; } = false;
         public string ConsentVersion { get; set; } = "1.0.0";
         public Country Country { get; set; }
-        public ConsentOptions GameConsentOptions { get; set; } = 0;
-        public string GameConsentVersion { get; set; } = "1.0.0";
+        public ConsentOptions AdditionalOptions { get; set; } = 0;
+        public string ConsentName { get; set; } = string.Empty;
 
         #endregion
 

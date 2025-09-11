@@ -58,6 +58,11 @@ namespace PlayerData
         {
             UnityJob job = GDF.Launch;
             yield return WaitJob(job);
+            
+            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+
+            GDF.Account.Consent.AgreedToLicense = true;
+
 
             job = GDF.Account.Authentication.Local.Login();
             yield return WaitJob(job);

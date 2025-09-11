@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class SignAddExchange : IEmailSign, IPasswordSign
+    public class SignAddExchange : IFieldEmail, IFieldPassword
     {
         #region Instance fields and properties
 

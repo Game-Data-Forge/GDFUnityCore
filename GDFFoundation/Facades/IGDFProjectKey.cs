@@ -7,6 +7,8 @@
 
 #endregion
 
+using System;
+
 namespace GDFFoundation
 {
     /// <summary>
@@ -28,6 +30,7 @@ namespace GDFFoundation
         ///     Retrieves the name of the project key instance.
         /// </summary>
         /// <returns>The name of the project key instance.</returns>
+        [Obsolete("to remove")]
         public string GetProjectKeyInstanceName();
 
         #endregion

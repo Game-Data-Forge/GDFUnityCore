@@ -1,6 +1,5 @@
 ﻿using GDFFoundation;
 using GDFRuntime;
-using System.Collections.Generic;
 
 namespace GDFUnity
 {

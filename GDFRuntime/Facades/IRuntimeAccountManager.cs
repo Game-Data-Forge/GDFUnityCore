@@ -49,6 +49,18 @@ namespace GDFRuntime
             public IRuntimeEmailPassword EmailPassword { get; }
         }
 
+        public interface IRuntimeConsent
+        {
+            public bool AgreedToLicense { get; set; }
+            public string LicenseURL { get; }
+            public string LicenseName { get; }
+            public string LicenseVersion { get; }
+
+            public Job RefreshLicense();
+            public Job SaveLicenseAgreement();
+            public Job<bool> CheckLicenseAgreementValidity();
+        }
+
         public bool IsAuthenticated { get; }
         public bool IsLocal { get; }
         public long Reference { get; }
@@ -65,6 +77,7 @@ namespace GDFRuntime
 
         public IRuntimeAuthentication Authentication { get; }
         public IRuntimeCredentials Credentials { get; }
+        public IRuntimeConsent Consent { get; }
 
         public Job Delete();
     }

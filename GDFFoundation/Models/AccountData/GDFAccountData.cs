@@ -19,7 +19,7 @@ namespace GDFFoundation
     ///     Data directly recorded in Database: no serialization storage.
     /// </summary>
     [Serializable]
-    public abstract class GDFAccountData : IGDFDbStorage, IGDFRangedData, IGDFWritableAccountData, IGDFWritableLongReference
+    public abstract class GDFAccountData : IGDFDbStorage, IGDFRangedData, IWritableFieldAccount, IGDFWritableLongReference
     {
         #region Instance fields and properties
 

@@ -35,8 +35,9 @@ namespace GDFUnity.Editor
                         }
                     }
                 }
-                catch
+                catch (Exception e)
                 {
+                    Debug.LogError(e);
                     if (_instance != null)
                     {
                         _instance = null;
@@ -57,28 +58,19 @@ namespace GDFUnity.Editor
         }
 
         private Job _launch = null;
-        private IEditorConfiguration _configuration;
-        
-        private IEditorThreadManager _threadManager;
-        private IEditorServerManager _serverManager;
-        private IEditorEnvironmentManager _environmentManager;
-        private IEditorDeviceManager _deviceManager;
-        private IEditorAccountManager _accountManager;
-        private IEditorPlayerDataManager _playerDataManager;
-        private IEditorTypeManager _typeManager;
-        private IEditorPlayerPersistanceManager _persistanceManager;
+        public IEditorConfiguration _configuration;
 
         public Job Launch => _launch;
         public IEditorConfiguration Configuration => _configuration;
 
-        public IEditorThreadManager ThreadManager => _threadManager;
-        public IEditorServerManager ServerManager => _serverManager;
-        public IEditorEnvironmentManager EnvironmentManager => _environmentManager;
-        public IEditorDeviceManager DeviceManager => _deviceManager;
-        public IEditorAccountManager AccountManager => _accountManager;
-        public IEditorPlayerDataManager PlayerDataManager => _playerDataManager;
-        public IEditorTypeManager TypeManager => _typeManager;
-        public IEditorPlayerPersistanceManager PersistanceManager => _persistanceManager;
+        public IEditorThreadManager ThreadManager => GDFManagers.UnsafeGet<IEditorThreadManager>();
+        public IEditorServerManager ServerManager => GDFManagers.UnsafeGet<IEditorServerManager>();
+        public IEditorEnvironmentManager EnvironmentManager => GDFManagers.UnsafeGet<IEditorEnvironmentManager>();
+        public IEditorDeviceManager DeviceManager => GDFManagers.UnsafeGet<IEditorDeviceManager>();
+        public IEditorAccountManager AccountManager => GDFManagers.UnsafeGet<IEditorAccountManager>();
+        public IEditorPlayerDataManager PlayerDataManager => GDFManagers.UnsafeGet<IEditorPlayerDataManager>();
+        public IEditorTypeManager TypeManager => GDFManagers.UnsafeGet<IEditorTypeManager>();
+        public IEditorPlayerPersistanceManager PersistanceManager => GDFManagers.UnsafeGet<IEditorPlayerPersistanceManager>();
         
         IRuntimeConfiguration IRuntimeEngine.Configuration => Configuration;
 
@@ -95,19 +87,29 @@ namespace GDFUnity.Editor
         {
             _configuration = configuration;
 
-            _threadManager = new EditorThreadManager();
-            _serverManager = new EditorServerManager(this);
-            _environmentManager = new EditorEnvironmentManager(this);
-            _deviceManager = new EditorDeviceManager(this);
-            _accountManager = new EditorAccountManager(this);
-            _typeManager = new EditorTypeManager();
-            _persistanceManager = new EditorPlayerPersistanceManager(this);
-            _playerDataManager = new EditorPlayerDataManager(this);
+            GDFManagers.Start();
+        
+            GDFManagers.AddSingleton(EditorConfigurationEngine.Instance);
+            GDFManagers.AddSingleton<IEditorThreadManager, EditorThreadManager>();
+            GDFManagers.AddSingleton<IEditorServerManager, EditorServerManager>();
+            GDFManagers.AddSingleton<IEditorEnvironmentManager, EditorEnvironmentManager>();
+            GDFManagers.AddSingleton<IEditorDeviceManager, EditorDeviceManager>();
+            GDFManagers.AddSingleton<IEditorAccountManager, EditorAccountManager>();
+            GDFManagers.AddSingleton<IEditorTypeManager, EditorTypeManager>();
+            GDFManagers.AddSingleton<IEditorPlayerPersistanceManager, EditorPlayerPersistanceManager>();
+            GDFManagers.AddSingleton<IEditorPlayerDataManager, EditorPlayerDataManager>();
+
+            GDFManagers.Build<IEditorEngine>(this);
 
             _launch = Job.Run((handler) => {
-                _typeManager.LoadRunner(handler);
+                GDFManagers.UnsafeGet<IEditorTypeManager>().LoadRunner(handler);
             }, "Start engine");
-            _launch.Pool = null; // Makes the launch task is never recycled.
+            _launch.Pool = null; // Makes sure the launch job is never recycled.
+        }
+
+        public T Get<T>()
+        {
+            return GDFManagers.Get<T>();
         }
 
         public Job Stop()
@@ -116,13 +118,13 @@ namespace GDFUnity.Editor
                 handler.StepAmount = 3;
                 try
                 {
-                    await _playerDataManager.Stop();
+                    await PlayerDataManager.Stop();
                     handler.Step();
                     
-                    await _accountManager.Stop();
+                    await AccountManager.Stop();
                     handler.Step();
 
-                    await _environmentManager.Stop();
+                    await EnvironmentManager.Stop();
                     handler.Step();
                 }
                 finally

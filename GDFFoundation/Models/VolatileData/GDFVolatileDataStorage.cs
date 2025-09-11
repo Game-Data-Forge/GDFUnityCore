@@ -19,7 +19,7 @@ namespace GDFFoundation
     ///     Represents a volatile data storage model.
     /// </summary>
     [Serializable]
-    public class GDFVolatileDataStorage : GDFDataBasicDataStorage, IGDFAccountDependence, IGDFDataTrack, IGDFWritableLongReference
+    public class GDFVolatileDataStorage : GDFDataBasicDataStorage, IGDFDataTrack, IGDFWritableLongReference
     {
         #region Instance fields and properties
 

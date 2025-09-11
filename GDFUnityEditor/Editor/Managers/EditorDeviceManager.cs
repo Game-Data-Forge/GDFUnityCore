@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace GDFUnity.Editor
 {
+    [Dependency(typeof(IEditorConfigurationEngine))]
+    [FullLockers(typeof(IEditorConfigurationEngine))]
     public class EditorDeviceManager : RuntimeDeviceManager, IEditorDeviceManager
     {
         static internal class Exceptions

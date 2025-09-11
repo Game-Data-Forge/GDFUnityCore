@@ -1,3 +1,4 @@
+using System;
 using GDFEditor;
 using GDFFoundation;
 using GDFRuntime;
@@ -5,10 +6,10 @@ using UnityEditor;
 
 namespace GDFUnity.Editor
 {
+    [Dependency(typeof(IEditorConfigurationEngine), typeof(IEditorThreadManager))]
+    [FullLockers(typeof(IEditorConfigurationEngine))]
     public class EditorEnvironmentManager : AsyncManager, IEditorEnvironmentManager
     {
-        private readonly object _lock = new object();
-
         private class EnvironmentConfiguration
         {
             public ProjectEnvironment Environment { get; set; } = ProjectEnvironment.Development;
@@ -16,7 +17,6 @@ namespace GDFUnity.Editor
 
         private Notification<ProjectEnvironment> _EnvironmentChangingEvent { get; }
         private Notification<ProjectEnvironment> _EnvironmentChangedEvent { get; }
-        private Job<ProjectEnvironment> _job = null;
         private EnvironmentConfiguration _environment;
         private IEditorEngine _engine;
 
@@ -24,9 +24,9 @@ namespace GDFUnity.Editor
         public Notification<ProjectEnvironment> EnvironmentChanged => _EnvironmentChangedEvent;
         public ProjectEnvironment Environment => _environment.Environment;
 
-        protected override Job Job => _job;
-        
         private GDFException canceledByUserException => new GDFException("ENV", 01, "Operation canceled by user !");
+
+        protected override Type JobLokerType => typeof(IEditorEnvironmentManager);
 
         public EditorEnvironmentManager(IEditorEngine engine)
         {
@@ -34,20 +34,11 @@ namespace GDFUnity.Editor
             _environment = GDFUserSettings.Instance.LoadOrDefault(new EnvironmentConfiguration(), container: GDFUserSettings.ProjectContainer(_engine));
             _EnvironmentChangingEvent = new Notification<ProjectEnvironment>(engine.ThreadManager);
             _EnvironmentChangedEvent = new Notification<ProjectEnvironment>(engine.ThreadManager);
-
-            State = ManagerState.Ready;
         }
 
         public Job<ProjectEnvironment> SetEnvironment(ProjectEnvironment environment)
         {
-            lock (_lock)
-            {
-                EnsureUseable();
-
-                _job = ChangeEnvironmentJob(environment);
-
-                return _job;
-            }
+            return JobLocker(() => ChangeEnvironmentJob(environment));
         }
 
         private Job<ProjectEnvironment> ChangeEnvironmentJob(ProjectEnvironment environment)
@@ -67,9 +58,7 @@ namespace GDFUnity.Editor
                 }
             }
             
-            return Job<ProjectEnvironment>.Run(handler => {
-                using Locker _ = Locker.Lock(this);
-
+            return JobLocker(() => Job<ProjectEnvironment>.Run(handler => {
                 handler.StepAmount = 3;
 
                 EnvironmentChanging.Invoke(handler.Split(), environment);
@@ -81,7 +70,7 @@ namespace GDFUnity.Editor
 
                 EnvironmentChanged.Invoke(handler.Split(), environment);
                 return environment;
-            }, taskName);
+            }, taskName));
         }
     }
 }

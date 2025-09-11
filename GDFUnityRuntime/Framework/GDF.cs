@@ -78,11 +78,11 @@ namespace GDFUnity
 
         static public IRuntimeConfiguration Configuration => Engine.Configuration;
         
-        static public IRuntimeThreadManager Thread => StartedEngine.ThreadManager;
-        static public IRuntimeEnvironmentManager Environment => StartedEngine.EnvironmentManager;
-        static public IRuntimeDeviceManager Device => StartedEngine.DeviceManager;
-        static public IRuntimeAccountManager Account => StartedEngine.AccountManager;
-        static public IRuntimePlayerDataManager Player => AuthenticatedEngine.PlayerDataManager;
+        static public IRuntimeThreadManager Thread => StartedEngine.Get<IRuntimeThreadManager>();
+        static public IRuntimeEnvironmentManager Environment => StartedEngine.Get<IRuntimeEnvironmentManager>();
+        static public IRuntimeDeviceManager Device => StartedEngine.Get<IRuntimeDeviceManager>();
+        static public IRuntimeAccountManager Account => StartedEngine.Get<IRuntimeAccountManager>();
+        static public IRuntimePlayerDataManager Player => AuthenticatedEngine.Get<IRuntimePlayerDataManager>();
 
         static public Job Stop()
         {

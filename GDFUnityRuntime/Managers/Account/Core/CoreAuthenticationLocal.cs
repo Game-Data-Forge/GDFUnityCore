@@ -41,38 +41,29 @@ namespace GDFUnity
 
         public override Job Login()
         {
-            lock (_manager.LOCK)
+            return _manager.JobLocker(() => Job.Run(handler =>
             {
-                _manager.EnsureUseable();
+                handler.StepAmount = 2;
 
-                _manager.job = Job.Run(handler =>
+                _manager.ResetToken(handler.Split());
+                if (!Exists)
                 {
-                    using IDisposable _ = _manager.Lock();
-
-                    handler.StepAmount = 2;
-
-                    _manager.ResetToken(handler.Split());
-                    if (!Exists)
+                    _storage = new TokenStorage(Country.None, "###." + JsonConvert.SerializeObject(new MemoryJwtToken
                     {
-                        _storage = new TokenStorage(Country.None, "###." + JsonConvert.SerializeObject(new MemoryJwtToken
-                        {
-                            Account = 0,
-                            Channel = _engine.Configuration.Channel,
-                            Country = Country.None,
-                            Environment = _engine.EnvironmentManager.Environment,
-                            LastSync = DateTime.MinValue,
-                            Project = _engine.Configuration.Reference,
-                            Range = 0,
-                            Token = "LOCAL",
-                        }).ToBase64URL() + ".###");
+                        Account = 0,
+                        Channel = _engine.Configuration.Channel,
+                        Country = Country.None,
+                        Environment = _engine.EnvironmentManager.Environment,
+                        LastSync = DateTime.MinValue,
+                        Project = _engine.Configuration.Reference,
+                        Range = 0,
+                        Token = "LOCAL",
+                    }).ToBase64URL() + ".###");
 
-                        GDFUserSettings.Instance.Save(_storage, container: GDFUserSettings.EnvironmentContainer(_engine));
-                    }
-                    _manager.SetToken(handler.Split(), _storage);
-                }, "Local login");
-
-                return _manager.job;
-            }
+                    GDFUserSettings.Instance.Save(_storage, container: GDFUserSettings.EnvironmentContainer(_engine));
+                }
+                _manager.SetToken(handler.Split(), _storage);
+            }, "Local login"));
         }
 
         private void OnAccountDeleting(IJobHandler handler)

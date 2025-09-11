@@ -5,6 +5,7 @@ using GDFRuntime;
 
 namespace GDFUnity
 {
+    [Dependency(typeof(IRuntimeConfigurationEngine))]
     public class RuntimeServerManager : IRuntimeServerManager
     {
         private const string _HEADER_PROJECT_KEY = "PublicKey";
@@ -29,7 +30,7 @@ namespace GDFUnity
                 return agent;
             }
         }
-        
+
         public RuntimeServerManager(IRuntimeEngine engine)
         {
             _engine = engine;

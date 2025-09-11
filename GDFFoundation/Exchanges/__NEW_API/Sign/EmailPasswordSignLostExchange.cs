@@ -20,7 +20,7 @@ namespace GDFFoundation
     ///     This class encapsulates properties required for authentication or account restoration purposes.
     /// </summary>
     [Serializable]
-    public class EmailPasswordSignLostExchange : IEmailSign, ISignCountry, IProjectReference
+    public class EmailPasswordSignLostExchange : IFieldEmail, IFieldCountry, IProjectReference, IFieldLanguageIso
     {
         #region Instance fields and properties
 

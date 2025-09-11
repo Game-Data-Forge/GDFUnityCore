@@ -19,6 +19,7 @@ namespace GDFRuntime
         public void SaveInformation(IJobHandler handler, PlayerStorageInformation information);
 
         public void Purge(IJobHandler handler);
+        public void Purge(IJobHandler handler, byte gameSave);
 
         public void Migrate(IJobHandler handler);
     }

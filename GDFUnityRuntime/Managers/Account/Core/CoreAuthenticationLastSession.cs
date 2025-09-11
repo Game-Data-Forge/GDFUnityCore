@@ -44,14 +44,7 @@ namespace GDFUnity
 
         public override Job Login()
         {
-            lock (_manager.LOCK)
-            {
-                _manager.EnsureUseable();
-
-                _manager.job = AutoSignInJob();
-
-                return _manager.job;
-            }
+            return _manager.JobLocker(AutoSignInJob);
         }
 
         private void OnAccountChanging(IJobHandler handler, MemoryJwtToken value)
@@ -86,8 +79,6 @@ namespace GDFUnity
 
             return Job.Run(handler =>
             {
-                using IDisposable _ = _manager.Lock();
-
                 _manager.ResetToken(handler);
                 _manager.SetToken(handler, token);
             });

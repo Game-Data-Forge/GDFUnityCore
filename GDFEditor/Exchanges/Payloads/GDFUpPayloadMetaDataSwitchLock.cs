@@ -22,6 +22,9 @@ namespace GDFEditor
         /// </summary>
         public string LockerName { set; get; } = GDFUpPayloadMetaDataLock.K_UNKNOWN;
 
+        /// <summary>
+        /// Represents the unique identifier for tracking purposes within a <see cref="GDFUpPayloadMetaDataSwitchLock"/>.
+        /// </summary>
         public int TrackId { set; get; }
 
         /// <summary>

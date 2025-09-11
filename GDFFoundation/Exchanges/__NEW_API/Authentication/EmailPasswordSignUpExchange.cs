@@ -32,19 +32,16 @@ namespace GDFFoundation
     ///     - IPasswordSign: Provides property for password.
     ///     - ISignConsent: Combines consent, version, game, and channel information.
     /// </implements>
-    /// <seealso cref="IEmailSign" />
-    /// <seealso cref="IPasswordSign" />
-    /// <seealso cref="ISignConsent" />
-    /// <seealso cref="ISignCountry" />
-    /// <seealso cref="ISignChannel" />
+    /// <seealso cref="IFieldEmail" />
+    /// <seealso cref="IFieldPassword" />
+    /// <seealso cref="IFieldsConsent" />
+    /// <seealso cref="IFieldCountry" />
+    /// <seealso cref="IFieldChannel" />
     [Serializable]
-    public class EmailPasswordSignUpExchange : IEmailSign, ISignConsent
+    public class EmailPasswordSignUpExchange : IFieldEmail, IFieldsConsent
     {
         #region Instance fields and properties
-        /// <summary>
-        ///     Gets or sets the IETF BCP 47 language code associated with the user's locale, which represents a two-letter standard language identifier.
-        /// </summary>
-        public string LanguageIso { get; set; } = string.Empty;
+
 
         #region From interface IEmailSign
 
@@ -72,13 +69,15 @@ namespace GDFFoundation
 
         #region From interface ISignConsent
 
+        public string LanguageIso { set; get; } = "en-US";
+
         /// <summary>
         ///     The Channel property represents the short identifier associated with the authentication or sign-up process.
         ///     It is used to specify the source or origin of the request (e.g., platform or client type).
         /// </summary>
         /// <remarks>
         ///     This property is primarily utilized in the authentication flow to associate specific actions
-        ///     or tracking mechanisms with different channels. It implements the <see cref="ISignChannel" /> interface.
+        ///     or tracking mechanisms with different channels. It implements the <see cref="IFieldChannel" /> interface.
         ///     Default value for this property is 0.
         /// </remarks>
         public short Channel { get; set; } = 0;
@@ -116,7 +115,7 @@ namespace GDFFoundation
         ///     The GameBit property is of type uint and is commonly used to identify or track
         ///     game-specific details depending on the implementation or context.
         /// </remarks>
-        public ConsentOptions GameConsentOptions { get; set; }
+        public ConsentOptions AdditionalOptions { get; set; }
 
         /// <summary>
         ///     Gets or sets the version of the game associated with the consent or sign-up process.
@@ -126,7 +125,7 @@ namespace GDFFoundation
         ///     including validating consent, tracking versions, or managing compatibility.
         ///     Ensure this value is appropriately set in processes that interact with game-related functionalities.
         /// </remarks>
-        public string GameConsentVersion { get; set; } = string.Empty;
+        public string ConsentName { get; set; } = string.Empty;
 
         #endregion
 

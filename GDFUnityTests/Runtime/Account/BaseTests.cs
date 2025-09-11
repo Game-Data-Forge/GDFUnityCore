@@ -16,8 +16,7 @@ namespace Account
             UnityJob task = GDF.Account.Delete();
             yield return WaitJob(task);
 
-            task = Authenticate();
-            yield return WaitJob(task);
+            yield return Connect();
 
             if (!GDF.Account.IsLocal)
             {
@@ -33,8 +32,12 @@ namespace Account
             UnityJob task = GDF.Launch;
             yield return WaitJob(task);
             
-            task = Authenticate();
+            task = GDF.Account.Consent.RefreshLicense();
             yield return WaitJob(task);
+
+            GDF.Account.Consent.AgreedToLicense = true;
+
+            yield return Connect();
         }
 
         [UnityTearDown]
@@ -47,6 +50,11 @@ namespace Account
         }
 
         protected abstract Job Authenticate();
+
+        protected IEnumerator Connect()
+        {
+            yield return WaitJob(Authenticate());
+        }
 
         protected IEnumerator WaitJob(UnityJob task, JobState expectedState = JobState.Success)
         {

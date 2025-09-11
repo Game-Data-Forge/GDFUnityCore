@@ -24,61 +24,53 @@ namespace GDFUnity
 
         public override Job Login(Country country)
         {
-            lock (_manager.LOCK)
+            return _manager.JobLocker(() => Job.Run(handler =>
             {
-                _manager.EnsureUseable();
+                handler.StepAmount = 4;
 
-                _manager.job = Job.Run(handler =>
+                _manager.ResetToken(handler.Split());
+                string bearer;
+                string url;
+                DeviceSignInExchange signInPayload = new DeviceSignInExchange()
                 {
-                    using IDisposable _ = _manager.Lock();
-
-                    handler.StepAmount = 4;
-
-                    _manager.ResetToken(handler.Split());
-                    string bearer;
-                    string url;
-                    DeviceSignInExchange signInPayload = new DeviceSignInExchange()
-                    {
-                        Channel = _engine.Configuration.Channel,
-                        UniqueIdentifier = _engine.DeviceManager.Id,
-                        Country = country
-                    };
-                    try
-                    {
-                        url = _manager.GenerateURL(country, "/api/v1/authentication/device/sign-in");
-                        bearer = _manager.Post<string>(handler.Split(), url, signInPayload);
-                    }
-                    catch (APIException e)
-                    {
-                        if (e.StatusCode != System.Net.HttpStatusCode.Forbidden)
-                        {
-                            throw;
-                        }
-
-                        DeviceSignUpExchange signUpPayload = new DeviceSignUpExchange()
-                        {
-                            Channel = _engine.Configuration.Channel,
-                            UniqueIdentifier = _engine.DeviceManager.Id,
-                            Consent = true,
-                            ConsentVersion = "1.0.0",
-                            GameConsentVersion = "1.0.0",
-                            Country = country
-                        };
-
-                        Debug.LogWarning("Game consent is hard written to 1.0.0 !");
-
-                        url = _manager.GenerateURL(country, "/api/v1/authentication/device/sign-up");
-                        bearer = _manager.Post<string>(handler.Split(), url, signUpPayload);
-                    }
-                    catch
+                    Channel = _engine.Configuration.Channel,
+                    UniqueIdentifier = _engine.DeviceManager.Id,
+                    Country = country
+                };
+                try
+                {
+                    url = _manager.GenerateURL(country, "/api/v1/authentication/device/sign-in");
+                    bearer = _manager.Post<string>(handler.Split(), url, signInPayload);
+                }
+                catch (APIException e)
+                {
+                    if (e.StatusCode != System.Net.HttpStatusCode.Forbidden)
                     {
                         throw;
                     }
-                    _manager.SetToken(handler.Split(), new TokenStorage(country, bearer));
-                }, "Device login");
 
-                return _manager.job;
-            }
+                    DeviceSignUpExchange signUpPayload = new DeviceSignUpExchange()
+                    {
+                        LanguageIso = "en-US",
+                        Channel = _engine.Configuration.Channel,
+                        UniqueIdentifier = _engine.DeviceManager.Id,
+                        Consent = _manager.Consent.AgreedToLicense,
+                        ConsentVersion = _manager.Consent.LicenseVersion,
+                        ConsentName = _manager.Consent.LicenseName,
+                        Country = country
+                    };
+
+                    Debug.LogWarning("Game consent is hard written to 1.0.0 !");
+
+                    url = _manager.GenerateURL(country, "/api/v1/authentication/device/sign-up");
+                    bearer = _manager.Post<string>(handler.Split(), url, signUpPayload);
+                }
+                catch
+                {
+                    throw;
+                }
+                _manager.SetToken(handler.Split(), new TokenStorage(country, bearer));
+            }, "Device login"));
         }
     }
 }

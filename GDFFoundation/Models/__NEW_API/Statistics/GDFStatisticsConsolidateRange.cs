@@ -9,6 +9,15 @@
 
 namespace GDFFoundation
 {
+    public enum GDFStatisticsPresentation
+    {
+        KeyAsLabel_MonthAsX_AmountAsValue,
+        KeyAsLabel_HourAsX_AmountAsValue,
+        KeyAsLabel_DaysAsX_AmountAsValue,
+        MonthAsLabel_KeyAsX_AmountAsValue,
+        
+    }
+
     /// <summary>
     ///     Enum representing the range to consolidate statistics.
     /// </summary>

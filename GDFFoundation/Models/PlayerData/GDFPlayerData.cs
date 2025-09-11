@@ -20,7 +20,7 @@ namespace GDFFoundation
     /// It extends the GDFBasicData class.
     /// @inherit GDFBasicData
     /// @modifiers [Serializable]
-    public abstract class GDFPlayerData : IGDFAccountData, IGDFSyncableData, IGDFStringReference
+    public abstract class GDFPlayerData : IFieldAccount, IGDFSyncableData, IGDFStringReference
     {
         #region Instance fields and properties
 

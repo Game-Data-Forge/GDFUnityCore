@@ -1,7 +1,5 @@
-using System;
 using GDFFoundation;
 using GDFRuntime;
-using static GDFUnity.CoreAccountManager;
 
 namespace GDFUnity
 {
@@ -34,10 +32,7 @@ namespace GDFUnity
                 return;
             }
 
-            using IDisposable _ = _manager.Lock();
-
             handler.StepAmount = 3;
-            TokenStorage token = _manager.storage;
 
             _manager.ResetToken(handler.Split());
 
@@ -48,15 +43,15 @@ namespace GDFUnity
             }
 
             try
-                {
-                    string url = _manager.GenerateURL(token.Country, "/api/v1/authentication/close-session");
-                    _manager.Put<int>(handler.Split(), url);
-                }
-                catch { }
-                finally
-                {
-                    _manager.SetToken(handler.Split(), null);
-                }
+            {
+                string url = _manager.GenerateURL(_manager.storage.Country, "/api/v1/authentication/close-session");
+                _manager.Put<int>(handler.Split(), url);
+            }
+            catch { }
+            finally
+            {
+                _manager.SetToken(handler.Split(), null);
+            }
         }
     }
 
@@ -82,13 +77,7 @@ namespace GDFUnity
 
         public override Job SignOut()
         {
-            lock (_manager.LOCK)
-            {
-                _manager.EnsureUseable();
-                _manager.job = Job.Run(SignOutRunner, "Sign out");
-
-                return _manager.job;
-            }
+            return _manager.JobLocker(() => Job.Run(SignOutRunner, "Sign out"));
         }
     }
 }

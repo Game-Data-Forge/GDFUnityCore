@@ -19,7 +19,7 @@ namespace GDFFoundation
     ///     GDFUserDataDataStorage class represents a storage model for user data.
     /// </summary>
     [Serializable]
-    public class GDFUserDataDataStorage : IGDFStorageData, IGDFWritableAccountData, IGDFWritableStringReference
+    public class GDFUserDataDataStorage : IGDFStorageData, IWritableFieldAccount, IGDFWritableStringReference
     {
         #region Constants
 

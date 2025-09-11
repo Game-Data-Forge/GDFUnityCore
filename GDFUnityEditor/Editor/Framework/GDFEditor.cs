@@ -69,12 +69,12 @@ namespace GDFUnity.Editor
 
         static public IEditorConfiguration Configuration => Engine.Configuration;
         
-        static public IEditorThreadManager Thread => StartedEngine.ThreadManager;
-        static public IEditorEnvironmentManager Environment => StartedEngine.EnvironmentManager;
-        static public IEditorDeviceManager Device => StartedEngine.DeviceManager;
-        static public IEditorTypeManager Types => StartedEngine.TypeManager;
-        static public IEditorAccountManager Account => StartedEngine.AccountManager;
-        static public IEditorPlayerDataManager Player => AuthenticatedEngine.PlayerDataManager;
+        static public IEditorThreadManager Thread => StartedEngine.Get<IEditorThreadManager>();
+        static public IEditorEnvironmentManager Environment => StartedEngine.Get<IEditorEnvironmentManager>();
+        static public IEditorDeviceManager Device => StartedEngine.Get<IEditorDeviceManager>();
+        static public IEditorTypeManager Types => StartedEngine.Get<IEditorTypeManager>();
+        static public IEditorAccountManager Account => StartedEngine.Get<IEditorAccountManager>();
+        static public IEditorPlayerDataManager Player => AuthenticatedEngine.Get<IEditorPlayerDataManager>();
 
         static public Job Stop()
         {

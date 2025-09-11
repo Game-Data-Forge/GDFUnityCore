@@ -24,7 +24,7 @@ namespace GDFFoundation
 
         public IJobHandler Split(int steps = 1);
 
-        public void Step();
+        public float Step();
         public void ThrowIfCancelled();
 
         #endregion

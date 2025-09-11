@@ -16,7 +16,7 @@ using System;
 namespace GDFFoundation
 {
     [Serializable]
-    public class OAuthSignInExchange : IOAuthSign, ISignChannel
+    public class OAuthSignInExchange : IFieldsOAuth, IFieldChannel
     {
         #region Instance fields and properties
 

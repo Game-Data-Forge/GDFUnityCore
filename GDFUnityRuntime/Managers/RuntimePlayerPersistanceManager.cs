@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using GDFFoundation;
 using GDFRuntime;
 
 namespace GDFUnity
 {
+    [Dependency(typeof(IRuntimeConfigurationEngine), typeof(IRuntimeAccountManager))]
+    [FullLockers(typeof(IRuntimeAccountManager), typeof(IRuntimePlayerDataManager))]
     public class RuntimePlayerPersistanceManager : IRuntimePlayerPersistanceManager
     {
         private string _root;
@@ -155,6 +156,15 @@ namespace GDFUnity
             }
 
             path = GetFilePath(GDF.Account.Identity);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+
+        public void Purge(IJobHandler handler, byte gameSave)
+        {
+            string path = GetFilePath(GDF.Account.Identity, gameSave);
             if (File.Exists(path))
             {
                 File.Delete(path);

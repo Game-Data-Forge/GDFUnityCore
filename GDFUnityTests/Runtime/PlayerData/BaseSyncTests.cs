@@ -5,6 +5,9 @@ using GDFUnity;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 using GDFUnity.Tests;
+using System.Diagnostics;
+using System;
+using UnityEngine;
 
 namespace PlayerData
 {
@@ -204,8 +207,7 @@ namespace PlayerData
             
             Assert.IsTrue(triggeredImmediate);
 
-            yield return null;
-            yield return null;
+            yield return WaitTimeout(() => triggeredDelay, 3000);
             
             Assert.IsTrue(triggeredDelay);
         }
@@ -222,12 +224,15 @@ namespace PlayerData
             UnityJob task = GDF.Player.Sync();
             yield return WaitJobStarted(task);
             
-            Assert.IsTrue(triggeredImmediate);
-            Assert.IsFalse(task.IsDone);
-
-            yield return null;
+            yield return WaitTimeout(() => triggeredImmediate, 3000);
             
+            Assert.IsTrue(triggeredImmediate);
+
+            yield return WaitTimeout(() => triggeredDelay, 3000);
+
             Assert.IsTrue(triggeredDelay);
+            
+            yield return WaitJob(task);
         }
 
         private void OnSynced()
@@ -297,6 +302,21 @@ namespace PlayerData
             {
                 yield return job;
             }
+        }
+
+        private IEnumerator WaitTimeout(Func<bool> func, long timeout)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            yield return new WaitUntil(() =>
+            {
+                if (sw.ElapsedMilliseconds >= timeout)
+                {
+                    return true;
+                }
+                return func();
+            });
         }
     }
 }

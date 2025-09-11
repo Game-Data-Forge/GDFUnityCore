@@ -3,6 +3,7 @@ using GDFFoundation;
 using GDFRuntime;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 namespace GDFUnity.Editor
 {
@@ -22,12 +23,13 @@ namespace GDFUnity.Editor
             }
             catch (Exception e)
             {
-                FailBuild(e.Message);
+                FailBuild(e);
             }
         }
 
-        private void FailBuild (string message)
+        private void FailBuild (Exception e)
         {
+            Debug.LogError(e);
             throw new BuildFailedException("FORCED FAILED");
         }
     }

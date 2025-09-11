@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using GDFFoundation;
@@ -45,40 +44,30 @@ namespace GDFUnity
         {
             string jobName = "Get account credentials";
             
-            lock (_manager.LOCK)
+            if (_manager.IsLocal)
             {
-                _manager.EnsureUseable();
+                return Job.Success(jobName);
+            }
+            
+            return _manager.JobLocker(() => Job.Run(handler =>
+            {
+                string url = _manager.GenerateURL(_manager.Country, "/api/v1/accounts/" + _manager.Reference + "/signs");
 
-                if (_manager.IsLocal)
+                IEnumerable<GDFAccountSign> response = _manager.Get<IEnumerable<GDFAccountSign>>(handler, url);
+                if (_credentials == null)
                 {
-                    _manager.job = Job.Success(jobName);
-                    return _manager.job;
+                    _credentials = new List<GDFAccountSign>();
+                }
+                else
+                {
+                    _credentials.Clear();
                 }
 
-                _manager.job = Job.Run(handler =>
+                foreach (GDFAccountSign sign in response)
                 {
-                    using IDisposable _ = _manager.Lock();
-
-                    string url = _manager.GenerateURL(_manager.Country, "/api/v1/accounts/" + _manager.Reference + "/signs");
-
-                    IEnumerable<GDFAccountSign> response = _manager.Get<IEnumerable<GDFAccountSign>>(handler, url);
-                    if (_credentials == null)
-                    {
-                        _credentials = new List<GDFAccountSign>();
-                    }
-                    else
-                    {
-                        _credentials.Clear();
-                    }
-
-                    foreach (GDFAccountSign sign in response)
-                    {
-                        _credentials.Add(sign);
-                    }
-                }, jobName);
-
-                return _manager.job;
-            }
+                    _credentials.Add(sign);
+                }
+            }, jobName));
         }
     }
 }

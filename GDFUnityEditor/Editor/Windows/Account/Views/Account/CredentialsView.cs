@@ -272,9 +272,9 @@ namespace GDFUnity.Editor
             {
                 try
                 {
-                    GDFAccountSign.CheckEmail(_email.value);
-                    GDFAccountSign.CheckPassword(_newPassword.value);
-                    GDFAccountSign.CheckPassword(_confirmPassword.value);
+                    FieldEmailExtensions.CheckEmailValidity(_email.value);
+                    FieldPasswordExtensions.CheckPasswordValidity(_newPassword.value);
+                    FieldPasswordExtensions.CheckPasswordValidity(_confirmPassword.value);
 
                     _validate.SetEnabled(_newPassword.value == _confirmPassword.value);
                 }

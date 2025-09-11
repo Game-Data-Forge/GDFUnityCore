@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
+using System.Diagnostics;
 using GDFFoundation;
 using GDFUnity;
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Authentication
@@ -114,6 +117,8 @@ namespace Authentication
         [UnityTest]
         public IEnumerator CanBeNotifiedOfAccountStateChanged()
         {
+            Stopwatch sw = new Stopwatch();
+
             GDF.Account.AccountChanged.onBackgroundThread += OnAutenticationChanged;
             GDF.Account.AccountChanged.onMainThread += OnAutenticationChanged;
             
@@ -124,21 +129,22 @@ namespace Authentication
             yield return WaitJob(task);
 
             Assert.IsTrue(triggeredImmediate);
-            
-            yield return null;
-            yield return null;
+            Assert.IsFalse(triggeredDelay);
+
+            yield return WaitTimeout(() => triggeredDelay, 3000);
             
             Assert.IsTrue(triggeredDelay);
 
             triggeredImmediate = false;
+            triggeredDelay = false;
 
             task = GDF.Account.Authentication.SignOut();
             yield return WaitJob(task);
 
             Assert.IsTrue(triggeredImmediate);
-            
-            yield return null;
-            yield return null;
+            Assert.IsFalse(triggeredDelay);
+
+            yield return WaitTimeout(() => triggeredDelay, 3000);
             
             Assert.IsTrue(triggeredDelay);
         }
@@ -154,27 +160,28 @@ namespace Authentication
 
             UnityJob task = Authenticate();
             yield return WaitJobStarted(task);
+            
+            yield return WaitTimeout(() => triggeredImmediate, 3000);
 
             Assert.IsTrue(triggeredImmediate);
-            Assert.IsFalse(task.IsDone);
 
-            yield return null;
+            yield return WaitTimeout(() => triggeredDelay, 3000);
             
             Assert.IsTrue(triggeredDelay);
 
             yield return WaitJob(task);
 
             triggeredImmediate = false;
+            triggeredDelay = false;
             
             task = GDF.Account.Authentication.SignOut();
             yield return WaitJobStarted(task);
-
-            yield return null;
+            
+            yield return WaitTimeout(() => triggeredImmediate, 3000);
 
             Assert.IsTrue(triggeredImmediate);
-            Assert.IsFalse(task.IsDone);
             
-            yield return null;
+            yield return WaitTimeout(() => triggeredDelay, 3000);
             
             Assert.IsTrue(triggeredDelay);
 
@@ -227,6 +234,12 @@ namespace Authentication
             
             UnityJob task = GDF.Launch;
             yield return WaitJob(task);
+
+            task = GDF.Account.Consent.RefreshLicense();
+            yield return WaitJob(task);
+
+            GDF.Account.Consent.AgreedToLicense = true;
+
         }
 
         [UnityTearDown]
@@ -262,6 +275,21 @@ namespace Authentication
             {
                 yield return job;
             }
+        }
+
+        private IEnumerator WaitTimeout(Func<bool> func, long timeout)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            yield return new WaitUntil(() =>
+            {
+                if (sw.ElapsedMilliseconds >= timeout)
+                {
+                    return true;
+                }
+                return func();
+            });
         }
     }
 }

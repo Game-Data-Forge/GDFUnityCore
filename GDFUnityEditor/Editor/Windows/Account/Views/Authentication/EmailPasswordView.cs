@@ -200,15 +200,15 @@ namespace GDFUnity.Editor.ServiceProviders
                 view.buttons.Add(_loginPage);
                 view.buttons.Add(_register);
 
-                view.consent.RegisterValueChangedCallback(OnConsentChanged);
-                view.consent.value = false;
+                view.consent.onChanged += OnConsentChanged;
+                view.consent.Value = false;
                 
-                _register.SetEnabled(view.consent.value);
+                _register.SetEnabled(view.consent.Value);
             }
 
             public override void OnDeactivate(AccountWindow window, AccountView view)
             {
-                view.consent.UnregisterValueChangedCallback(OnConsentChanged);
+                view.consent.onChanged -= OnConsentChanged;
             }
 
             private void Register(AuthenticationView view)
@@ -216,9 +216,9 @@ namespace GDFUnity.Editor.ServiceProviders
                 view.Load(GDFEditor.Account.Authentication.EmailPassword.Register(_view._view.country.value, _email.value));
             }
 
-            private void OnConsentChanged(ChangeEvent<bool> ev)
+            private void OnConsentChanged(bool value)
             {
-                _register.SetEnabled(ev.newValue);
+                _register.SetEnabled(value);
             }
         }
 

@@ -17,6 +17,9 @@ namespace GDFEditor
         /// </summary>
         public long ProjectReference { get; set; }
 
+        /// <summary>
+        /// Gets or sets the identifier for the track associated with the synchronization payload.
+        /// </summary>
         public int TrackId { set; get; }
     }
 }

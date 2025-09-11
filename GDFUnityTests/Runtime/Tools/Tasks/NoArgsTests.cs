@@ -217,6 +217,55 @@ namespace Tools.Tasks
             Assert.IsNotNull(task.Error);
         }
 
+        [UnityTest]
+        public IEnumerator CanSplitJobProgress()
+        {
+            UnityJob task = Job.Run(handler =>
+            {
+                float progress = 0, last = 0;
+                Func<IJobHandler, float> func = handler =>
+                {
+                    float last = progress;
+                    handler.StepAmount = 4;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    last = progress;
+
+                    progress = handler.Step();
+                    Assert.That(last, Is.LessThan(progress));
+                    return progress;
+                };
+
+                handler.StepAmount = 3;
+
+                progress = func(handler.Split());
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+                
+                progress = handler.Step();
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+
+                progress = func(handler.Split());
+                Assert.That(last, Is.LessThan(progress));
+                last = progress;
+            });
+
+            yield return task;
+
+            Assert.AreEqual(task.State, JobState.Success);
+        }
+
         private void Runner(IJobHandler handler)
         {
             handler.StepAmount = 50;

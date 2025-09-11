@@ -33,7 +33,7 @@ namespace GDFUnity.Editor
         [MenuItem("GDF/Project Settings...", priority = 0)]
         static public void Display()
         {
-            SettingsService.OpenProjectSettings("Project/Game Data Forge");
+            SettingsService.OpenProjectSettings(PATH);
         }
         [SettingsProvider]
         static public SettingsProvider Generate()

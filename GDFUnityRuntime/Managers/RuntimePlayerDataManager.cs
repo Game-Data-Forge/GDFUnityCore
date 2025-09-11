@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 
 namespace GDFUnity
 {
+    [Dependency(typeof(IRuntimeConfigurationEngine), typeof(IRuntimeAccountManager))]
+    [JobLockers(typeof(IRuntimeAccountManager), typeof(IRuntimePlayerPersistanceManager))]
     public class RuntimePlayerDataManager : APIManager, IRuntimePlayerDataManager
     {
         static private class Exceptions
@@ -47,9 +49,9 @@ namespace GDFUnity
 
         private class Cache
         {
+            internal Dictionary<string, GDFPlayerData> data;
             private RuntimePlayerDataManager _manager;
             private Dictionary<string, GDFPlayerDataStorage> _storage;
-            private Dictionary<string, GDFPlayerData> _data;
 
             public int Count => _storage.Count;
             public IEnumerable<string> KeysUnsafe => _storage.Keys;
@@ -62,7 +64,7 @@ namespace GDFUnity
             {
                 _manager = manager;
                 _storage = new Dictionary<string, GDFPlayerDataStorage> ();
-                _data = new Dictionary<string, GDFPlayerData>();
+                data = new Dictionary<string, GDFPlayerData>();
             }
 
             public bool Contains(string reference)
@@ -78,7 +80,7 @@ namespace GDFUnity
                 using(_Lock.Use(_Engine))
                 {
                     _storage.Add(reference, storage);
-                    _data.Add(reference, data);
+                    this.data.Add(reference, data);
                 }
             }
             
@@ -86,7 +88,7 @@ namespace GDFUnity
             {
                 using(_Lock.Use(_Engine))
                 {
-                    _data.Add(reference, data);
+                    this.data.Add(reference, data);
                 }
             }
             
@@ -103,7 +105,7 @@ namespace GDFUnity
                 GDFPlayerData data;
                 using (_Lock.Use(_Engine))
                 {
-                    if (_data.TryGetValue(reference, out data))
+                    if (this.data.TryGetValue(reference, out data))
                     {
                         return data;
                     }
@@ -111,7 +113,7 @@ namespace GDFUnity
                     if (_storage.TryGetValue(reference, out GDFPlayerDataStorage storage))
                     {
                         data = Deserialize(storage);
-                        _data.Add(reference, data);
+                        this.data.Add(reference, data);
                     }
                     return data;
                 }
@@ -152,13 +154,13 @@ namespace GDFUnity
                 GDFPlayerData data;
                 using (_Lock.Use(_Engine))
                 {
-                    if (_data.TryGetValue(storage.Reference, out data))
+                    if (this.data.TryGetValue(storage.Reference, out data))
                     {
                         JsonConvert.PopulateObject(storage.Json, data);
                         return data;
                     }
                     data = Deserialize(storage);
-                    _data.Add(storage.Reference, data);
+                    this.data.Add(storage.Reference, data);
                     return data;
                 }
             }
@@ -172,13 +174,13 @@ namespace GDFUnity
 
                 using (_Lock.Use(_Engine))
                 {
-                    if (_data.ContainsKey(data.Reference))
+                    if (this.data.ContainsKey(data.Reference))
                     {
-                        _data[data.Reference] = data;
+                        this.data[data.Reference] = data;
                     }
                     else
                     {
-                        _data.Add(data.Reference, data);
+                        this.data.Add(data.Reference, data);
                     }
                 }
             }
@@ -187,7 +189,7 @@ namespace GDFUnity
             {
                 using (_Lock.Use(_Engine))
                 {
-                    _data.Remove(reference);
+                    data.Remove(reference);
                     return _storage.Remove(reference);
                 }
             }
@@ -197,7 +199,7 @@ namespace GDFUnity
                 using(_Lock.Use(_Engine))
                 {
                     _storage.Clear();
-                    _data.Clear();
+                    data.Clear();
                 }
             }
             
@@ -280,6 +282,20 @@ namespace GDFUnity
                 _storages.Remove(storage);
             }
 
+            public void ClearGameSave(byte gameSave)
+            {
+                Dictionary<Unicity, GDFPlayerDataStorage> storages = new Dictionary<Unicity, GDFPlayerDataStorage>();
+
+                foreach (KeyValuePair<Unicity, GDFPlayerDataStorage> storage in _storages)
+                {
+                    if (storage.Key.gameSave == gameSave) continue;
+
+                    storages.Add(storage.Key, storage.Value);
+                }
+
+                _storages = storages;
+            }
+
             public void Fill(List<GDFPlayerDataStorage> buffer, int count)
             {
                 foreach (GDFPlayerDataStorage storage in this)
@@ -324,7 +340,6 @@ namespace GDFUnity
             }
         }
 
-        private readonly object _taskLock = new object();
         private readonly Lock _lock = new Lock();
         private byte _gameSave = 0;
         private IRuntimeEngine _engine;
@@ -337,7 +352,6 @@ namespace GDFUnity
         private Queue _saveQueue = new Queue();
         private Queue _syncQueue = new Queue();
         private Random _rng = new Random();
-        private Job _job = null;
         private Dictionary<string, string> _headers = new Dictionary<string, string>();
         private PlayerStorageInformation _information = new PlayerStorageInformation();
         private Notification _syncing;
@@ -357,7 +371,7 @@ namespace GDFUnity
         public Notification Saving => _saving;
         public Notification Saved => _saved;
 
-        protected override Job Job => _job;
+        protected override Type JobLokerType => typeof(IRuntimePlayerDataManager);
 
         public RuntimePlayerDataManager(IRuntimeEngine engine)
         {
@@ -376,8 +390,6 @@ namespace GDFUnity
 
             _gameSaveCache = new Cache(this);
             _commonCache = new Cache(this);
-
-            State = ManagerState.Ready;
         }
 
         ~RuntimePlayerDataManager()
@@ -394,24 +406,22 @@ namespace GDFUnity
 
         public Job LoadGameSave(byte gameSave)
         {
-            lock (_taskLock)
+            if (gameSave > 99)
             {
-                if (gameSave > 99)
-                {
-                    throw Exceptions.InvalidGameSave;
-                }
-
-                EnsureUseable();
-
-                _job = LoadJob(gameSave);
-
-                return _job;
+                throw Exceptions.InvalidGameSave;
             }
+
+            return JobLocker(() => LoadJob(gameSave));
+        }
+
+        public bool GameSaveExists(byte gameSave)
+        {
+            return _information.GameSaves.Contains(gameSave);
         }
 
         public void Add(GDFPlayerData data, bool defaultGameSave)
         {
-            Add (null, data, defaultGameSave);
+            Add(null, data, defaultGameSave);
         }
 
         public void Add(string reference, GDFPlayerData data, bool defaultGameSave)
@@ -590,15 +600,19 @@ namespace GDFUnity
 
         public Job DeleteGameSave()
         {
-            lock (_taskLock)
-            {
-                EnsureUseable();
-
-                _job = Job.Run(DeleteGameSaveRunner, "Delete GameSave");
-                return _job;
-            }
+            return DeleteGameSave(_gameSave);
         }
 
+        public Job DeleteGameSave(byte gameSave)
+        {
+            if (gameSave > 99)
+            {
+                throw Exceptions.InvalidGameSave;
+            }
+
+            return JobLocker(() => Job.Run(handler => DeleteGameSaveRunner(handler, gameSave), $"Delete GameSave {gameSave}"));
+        }
+        
         public DataStateInfo GetState(GDFPlayerData data)
         {
             DataStateInfo info = new DataStateInfo();
@@ -643,59 +657,44 @@ namespace GDFUnity
 
         public Job Save()
         {
-            lock (_taskLock)
-            {
-                EnsureUseable();
-
-                _job = Job.Run(SaveRunner, "Player data save");
-                return _job;
-            }
+            return SaveToGameSave(_gameSave);
         }
         
+        public Job SaveToGameSave(byte gameSave)
+        {
+            if (gameSave > 99)
+            {
+                throw Exceptions.InvalidGameSave;
+            }
+
+            return JobLocker(() => Job.Run(handler => SaveRunner(handler, gameSave), $"Save GameSave {gameSave}"));
+        }
+
         public Job Sync()
         {
-            lock (_taskLock)
-            {
-                EnsureUseable();
-
-                _job = Job.Run(SyncRunner, "Player data sync");
-                return _job;
-            }
+            return JobLocker(() => Job.Run(SyncRunner, "Player data sync"));
         }
 
         public Job Purge()
         {
-            lock (_taskLock)
-            {
-                EnsureUseable();
-
-                _job = Job.Run(PurgeRunner, "Purge data");
-                return _job;
-            }
+            return JobLocker(() => Job.Run(PurgeRunner, "Purge data"));
         }
 
         public Job MigrateLocalData()
         {
             string jobName = "Purge data";
-            lock (_taskLock)
+            
+            if (_engine.AccountManager.IsLocal)
             {
-                EnsureUseable();
-
-                if (_engine.AccountManager.IsLocal)
-                {
-                    _job = Job.Success(jobName);
-                    return _job;
-                }
-                
-                if (!_engine.AccountManager.Authentication.Local.Exists)
-                {
-                    _job = Job.Success(jobName);
-                    return _job;
-                }
-
-                _job = Job.Run(MigrationRunner, jobName);
-                return _job;
+                return Job.Success(jobName);
             }
+
+            if (!_engine.AccountManager.Authentication.Local.Exists)
+            {
+                return Job.Success(jobName);
+            }
+
+            return JobLocker(() => Job.Run(MigrationRunner, jobName));
         }
 
         private void TrashData(Cache cache, GDFPlayerDataStorage storage, GDFPlayerData data)
@@ -717,12 +716,11 @@ namespace GDFUnity
             }
 
             GDFPlayerData defaultData = _commonCache.Get(storage.Reference);
-            if (defaultData != null)
-            {
-                JsonConvert.PopulateObject(JsonConvert.SerializeObject(defaultData), data);
-                data.CopyFrom(defaultData);
-                _commonCache.Update(data);
-            }
+            if (defaultData == null) return;
+            
+            JsonConvert.PopulateObject(JsonConvert.SerializeObject(defaultData), data);
+            data.CopyFrom(defaultData);
+            _commonCache.Update(data);
         }
 
         private Job LoadJob(byte gameSave)
@@ -858,10 +856,8 @@ namespace GDFUnity
             return reference;
         }
 
-        private void SaveRunner(IJobHandler handler)
+        private void SaveRunner(IJobHandler handler, byte gameSave)
         {
-            using Locker _ = Locker.Lock(this);
-
             handler.StepAmount = 3;
 
             using (_lock.Use(_engine))
@@ -869,7 +865,18 @@ namespace GDFUnity
                 Saving.Invoke(handler.Split());
                 try
                 {
-                    SaveRunnerUnsafe(handler.Split());
+                    if (gameSave == _gameSave)
+                    {
+                        SaveRunnerUnsafe(handler.Split());
+                    }
+                    else if (gameSave == 0)
+                    {
+                        SaveOverriteCommonRunnerUnsafe(handler.Split());
+                    }
+                    else
+                    {
+                        SaveOverriteOtherRunnerUnsafe(handler.Split(), gameSave);
+                    }
                 }
                 finally
                 {
@@ -880,8 +887,6 @@ namespace GDFUnity
 
         private void SyncRunner(IJobHandler handler)
         {
-            using Locker _ = Locker.Lock(this);
-
             handler.StepAmount = 4;
             using (_lock.Use(_engine))
             {
@@ -904,8 +909,6 @@ namespace GDFUnity
 
         private void MigrationRunner(IJobHandler handler)
         {
-            using Locker _ = Locker.Lock(this);
-
             handler.StepAmount = 2;
             using (_lock.Use(_engine))
             {
@@ -914,37 +917,128 @@ namespace GDFUnity
             }
         }
 
-        private void DeleteGameSaveRunner(IJobHandler handler)
+        private void DeleteGameSaveRunner(IJobHandler handler, byte gameSave)
         {
-            using Locker _ = Locker.Lock(this);
-
             using(_lock.Use(_engine))
             {
                 handler.StepAmount = 2;
-                DeleteGameSaveRunnerUnsafe(handler.Split());
-                SaveRunner(handler.Split());
+                DeleteGameSaveRunnerUnsafe(handler.Split(), gameSave);
+            }
+        }
+
+        private void DeleteGameSaveRunnerUnsafe(IJobHandler handler, byte gameSave)
+        {
+            if (!GameSaveExists(gameSave)) return;
+            if (gameSave == 0)
+            {
+                DeleteGameSaveRunnerUnsafe(handler, _commonCache, gameSave);
+            }
+            else if (gameSave == _gameSave)
+            {
+                DeleteGameSaveRunnerUnsafe(handler);
+            }
+            else
+            {
+                DeleteUnloadedGameSaveRunnerUnsafe(handler, gameSave);
             }
         }
 
         private void DeleteGameSaveRunnerUnsafe(IJobHandler handler)
         {
-            Cache cache = _gameSave == 0 ? _commonCache : _gameSaveCache;
-            handler.StepAmount = cache.Count;
+            handler.StepAmount = 4;
+
+            List<GDFPlayerDataStorage> dataToSync = DeleteGameSaveRunnerUnsafe(handler.Split(), _gameSaveCache, _gameSave);
+
+            foreach (GDFPlayerDataStorage storage in dataToSync)
+            {
+                if (!_gameSaveCache.data.TryGetValue(storage.Reference, out GDFPlayerData data))
+                {
+                    continue;
+                }
+
+                GDFPlayerData defaultData = _commonCache.Get(storage.Reference);
+                if (defaultData == null) return;
+                
+                JsonConvert.PopulateObject(JsonConvert.SerializeObject(defaultData), data);
+                data.CopyFrom(defaultData);
+                _commonCache.Update(data);
+            }
+
+            handler.Step();
+
+            _information.GameSaves.Remove(_gameSave);
+            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
+        }
+
+        private List<GDFPlayerDataStorage> DeleteGameSaveRunnerUnsafe(IJobHandler handler, Cache cache, byte gameSave)
+        {
+            handler.StepAmount = 5;
+            List<GDFPlayerDataStorage> dataToSync = new List<GDFPlayerDataStorage>();
+            List<PlayerReferenceStorage> references = new List<PlayerReferenceStorage>();
 
             foreach (GDFPlayerDataStorage storage in cache.GetStorages())
             {
                 storage.Trashed = true;
-                GDFPlayerData data = cache.Get(storage.Reference);
-                TrashData(cache, storage, data);
-                _saveQueue.Add(storage);
-                handler.Step();
+                storage.ClassName = "";
+                storage.Json = "";
+
+                dataToSync.Add(storage);
+                _syncQueue.Add(storage);
+                references.Add(UnregisterReference(storage.Reference, gameSave, true));
             }
+
+            handler.Step();
+
+            _saveQueue.ClearGameSave(gameSave);
+            cache.Clear();
+
+            handler.Step();
+
+            _engine.PersistanceManager.SaveDataToSync(handler.Split(), dataToSync);
+            _engine.PersistanceManager.SaveReference(handler.Split(), references);
+            _engine.PersistanceManager.Purge(handler.Split(), gameSave);
+            
+            _information.GameSaves.Remove(gameSave);
+            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
+
+            return dataToSync;
+        }
+
+        private void DeleteUnloadedGameSaveRunnerUnsafe(IJobHandler handler, byte gameSave)
+        {
+            handler.StepAmount = 7;
+
+            List<GDFPlayerDataStorage> dataToSync = new List<GDFPlayerDataStorage>();
+            List<PlayerReferenceStorage> references = new List<PlayerReferenceStorage>();
+
+            _engine.PersistanceManager.Load(handler, gameSave, dataToSync, null);
+
+            foreach (GDFPlayerDataStorage storage in dataToSync)
+            {
+                storage.Trashed = true;
+                storage.ClassName = "";
+                storage.Json = "";
+
+                _syncQueue.Add(storage);
+                references.Add(UnregisterReference(storage.Reference, gameSave, true));
+            }
+
+            handler.Step();
+
+            _saveQueue.ClearGameSave(gameSave);
+
+            handler.Step();
+
+            _engine.PersistanceManager.SaveDataToSync(handler.Split(), dataToSync);
+            _engine.PersistanceManager.SaveReference(handler.Split(), references);
+            _engine.PersistanceManager.Purge(handler.Split(), gameSave);
+            
+            _information.GameSaves.Remove(gameSave);
+            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
         }
 
         private void PurgeRunner(IJobHandler handler)
         {
-            using Locker _ = Locker.Lock(this);
-
             using(_lock.Use(_engine))
             {
                 handler.StepAmount = 2;
@@ -964,8 +1058,6 @@ namespace GDFUnity
                     return;
                 }
 
-                Country country = _engine.AccountManager.Country;
-
                 _headers.Clear();
                 _engine.ServerManager.FillHeaders(_headers, _engine.AccountManager.Bearer);
                 Delete<int>(handler.Split(), _engine.ServerManager.BuildSyncURL("/api/v1/player-data"), _headers);
@@ -974,8 +1066,6 @@ namespace GDFUnity
 
         private void LoadRunner(IJobHandler handler, byte gameSave)
         {
-            using Locker _ = Locker.Lock(this);
-
             handler.StepAmount = 3;
 
             using (_lock.Use(_engine))
@@ -1039,9 +1129,6 @@ namespace GDFUnity
                 _loadDataBuffer[i].GameSave = gameSave;
             }
             UpdateStorage(handler.Split(), cache);
-
-            _information.GameSaves.Add(gameSave);
-            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
         }
 
         private void SaveRunnerUnsafe(IJobHandler handler)
@@ -1056,7 +1143,158 @@ namespace GDFUnity
             foreach (GDFPlayerDataStorage data in storages)
             {
                 _syncQueue.Add(data);
+                _information.GameSaves.Add(data.GameSave);
             }
+            _engine.PersistanceManager.SaveReference(handler.Split(), _referenceSaveQueue);
+            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
+            _saveQueue.Clear();
+            _referenceSaveQueue.Clear();
+        }
+
+        private void SaveOverriteCommonRunnerUnsafe(IJobHandler handler)
+        {
+            handler.StepAmount = 8;
+
+            foreach (GDFPlayerDataStorage storage in _saveQueue)
+            {
+                if (storage.GameSave == 0) continue;
+
+                UnregisterReference(storage.Reference, storage.GameSave, true);
+            }
+
+            foreach (GDFPlayerDataStorage storage in _commonCache.GetStorages())
+            {
+                if (_saveQueue.Contains(storage)) continue;
+
+                UnregisterReference(storage.Reference, 0, true);
+
+                storage.Trashed = true;
+                storage.ClassName = "";
+                storage.Json = "";
+                _saveQueue.Add(storage);
+            }
+
+            handler.Step();
+
+            _saveQueue.ClearGameSave(_gameSave);
+
+            foreach (GDFPlayerDataStorage storage in _gameSaveCache.GetStorages())
+            {
+                GDFPlayerDataStorage data = new GDFPlayerDataStorage();
+                data.CopyFrom(storage);
+                data.GameSave = 0;
+
+                _saveQueue.Add(data);
+            }
+
+            handler.Step();
+
+            List<GDFPlayerDataStorage> saveData = _saveQueue.ToList();
+
+            _engine.PersistanceManager.Save(handler.Split(), saveData);
+            _engine.PersistanceManager.SaveDataToSync(handler.Split(), saveData);
+
+            foreach (GDFPlayerDataStorage storage in saveData)
+            {
+                if (!storage.Trashed)
+                {
+                    RegisterReference(storage.Reference, 0, storage.ClassName, true);
+                }
+
+                _syncQueue.Add(storage);
+            }
+
+            handler.Step();
+
+            _engine.PersistanceManager.SaveReference(handler.Split(), _referenceSaveQueue);
+            _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
+            _saveQueue.Clear();
+            _referenceSaveQueue.Clear();
+
+            _commonCache.Clear();
+            foreach (GDFPlayerDataStorage storage in saveData)
+            {
+                if (storage.Trashed) continue;
+
+                _commonCache.Add(storage.Reference, storage);
+            }
+            
+            handler.Step();
+        }
+
+        private void SaveOverriteOtherRunnerUnsafe(IJobHandler handler, byte gameSave)
+        {
+            handler.StepAmount = 9;
+
+            List<GDFPlayerDataStorage> backup = new List<GDFPlayerDataStorage>();
+            foreach (GDFPlayerDataStorage storage in _saveQueue)
+            {
+                if (storage.GameSave == 0) continue;
+
+                UnregisterReference(storage.Reference, storage.GameSave, true);
+                backup.Add(storage);
+            }
+
+            _saveQueue.ClearGameSave(_gameSave);
+
+            Cache cache = _gameSave == 0 ? _commonCache : _gameSaveCache;
+            if (GameSaveExists(gameSave))
+            {
+                List<GDFPlayerDataStorage> storages = new List<GDFPlayerDataStorage>();
+                _engine.PersistanceManager.Load(handler.Split(), gameSave, storages, null);
+                foreach (GDFPlayerDataStorage storage in storages)
+                {
+                    if (_saveQueue.Contains(storage)) continue;
+
+                    UnregisterReference(storage.Reference, gameSave, true);
+
+                    storage.Trashed = true;
+                    storage.ClassName = "";
+                    storage.Json = "";
+                    _saveQueue.Add(storage);
+                }
+                _engine.PersistanceManager.Purge(handler.Split(), gameSave);
+            }
+            else
+            {
+                _information.GameSaves.Add(gameSave);
+                handler.Step();
+                handler.Step();
+            }
+
+            foreach (GDFPlayerDataStorage storage in cache.GetStorages())
+            {
+                GDFPlayerDataStorage data = new GDFPlayerDataStorage();
+                data.CopyFrom(storage);
+                data.GameSave = gameSave;
+
+                _saveQueue.Add(data);
+            }
+
+            handler.Step();
+
+            List<GDFPlayerDataStorage> saveData = _saveQueue.ToList();
+
+            _engine.PersistanceManager.Save(handler.Split(), saveData);
+            _engine.PersistanceManager.SaveDataToSync(handler.Split(), saveData);
+
+            foreach (GDFPlayerDataStorage storage in saveData)
+            {
+                if (!storage.Trashed)
+                {
+                    RegisterReference(storage.Reference, storage.GameSave, storage.ClassName, true);
+                }
+
+                if (backup.Any(x => x.Reference == storage.Reference && x.GameSave == storage.GameSave))
+                {
+                    RegisterReference(storage.Reference, _gameSave, storage.ClassName, true);
+                }
+
+                _syncQueue.Add(storage);
+            }
+
+            handler.Step();
+
             _engine.PersistanceManager.SaveReference(handler.Split(), _referenceSaveQueue);
             _engine.PersistanceManager.SaveInformation(handler.Split(), _information);
             _saveQueue.Clear();
@@ -1243,8 +1481,6 @@ namespace GDFUnity
 
         private void OnAccountChanging(IJobHandler handler, MemoryJwtToken token)
         {
-            using Locker _ = Locker.Lock(this);
-            
             using(_lock.Use(_engine))
             {
                 if (token == null)
@@ -1263,8 +1499,6 @@ namespace GDFUnity
 
         private void OnAccountChanged(IJobHandler handler, MemoryJwtToken token)
         {
-            using Locker _ = Locker.Lock(this);
-            
             using(_lock.Use(_engine))
             {
                 if (token == null)
@@ -1281,5 +1515,6 @@ namespace GDFUnity
                 LoadRunnerUnsafe(handler, 0);
             }
         }
+
     }
 }
