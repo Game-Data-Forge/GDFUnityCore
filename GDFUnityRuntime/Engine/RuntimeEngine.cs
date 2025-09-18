@@ -43,6 +43,7 @@ namespace GDFUnity
 
         public IRuntimeThreadManager ThreadManager => GDFManagers.UnsafeGet<IRuntimeThreadManager>();
         public IRuntimeServerManager ServerManager => GDFManagers.UnsafeGet<IRuntimeServerManager>();
+        public IRuntimeLicenseManager LicenseManager => GDFManagers.UnsafeGet<IRuntimeLicenseManager>();
         public IRuntimeEnvironmentManager EnvironmentManager => GDFManagers.UnsafeGet<IRuntimeEnvironmentManager>();
         public IRuntimeDeviceManager DeviceManager => GDFManagers.UnsafeGet<IRuntimeDeviceManager>();
         public IRuntimeAccountManager AccountManager => GDFManagers.UnsafeGet<IRuntimeAccountManager>();
@@ -63,6 +64,7 @@ namespace GDFUnity
 
             GDFManagers.AddSingleton<IRuntimeThreadManager, RuntimeThreadManager>(_gameObject.AddComponent<RuntimeThreadManager>());
             GDFManagers.AddSingleton<IRuntimeServerManager, RuntimeServerManager>();
+            GDFManagers.AddSingleton<IRuntimeLicenseManager, RuntimeLicenseManager>();
             GDFManagers.AddSingleton<IRuntimeEnvironmentManager, RuntimeEnvironmentManager>();
             GDFManagers.AddSingleton<IRuntimeDeviceManager, RuntimeDeviceManager>();
             GDFManagers.AddSingleton<IRuntimeAccountManager, RuntimeAccountManager>();

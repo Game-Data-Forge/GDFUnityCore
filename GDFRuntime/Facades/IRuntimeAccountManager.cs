@@ -14,11 +14,11 @@ namespace GDFRuntime
             }
             public interface IRuntimeDevice
             {
-                public Job Login(Country country);
+                public Job Login(Country country, bool agreeToLicense);
             }
             public interface IRuntimeEmailPassword
             {
-                public Job Register(Country country, string email);
+                public Job Register(Country country, string email, bool agreeToLicense);
                 public Job Login(Country country, string email, string password);
                 public Job Rescue(Country country, string email);
             }
@@ -51,14 +51,13 @@ namespace GDFRuntime
 
         public interface IRuntimeConsent
         {
-            public bool AgreedToLicense { get; set; }
-            public string LicenseURL { get; }
-            public string LicenseName { get; }
-            public string LicenseVersion { get; }
-
-            public Job RefreshLicense();
-            public Job SaveLicenseAgreement();
-            public Job<bool> CheckLicenseAgreementValidity();
+            public interface ILicenseAgreement
+            {
+                public Job Set(bool agreeToLicense);
+                public Job<bool> Get();
+            }
+            
+            public ILicenseAgreement LicenseAgreement { get; }
         }
 
         public bool IsAuthenticated { get; }

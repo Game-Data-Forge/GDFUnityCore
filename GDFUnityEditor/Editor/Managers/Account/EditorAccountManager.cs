@@ -22,7 +22,7 @@ namespace GDFUnity.Editor
         {
             _authentication = new EditorAccountAuthentication(engine, this);
             _credentials = new EditorAccountCredentials(this);
-            _consent = new EditorAccountConsent(this);
+            _consent = new EditorAccountConsent(this, (RuntimeLicenseManager)engine.LicenseManager);
         }
     }
 }

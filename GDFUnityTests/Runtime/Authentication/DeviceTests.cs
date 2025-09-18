@@ -9,7 +9,7 @@ namespace Authentication
 
         protected override Job Authenticate()
         {
-            return GDF.Account.Authentication.Device.Login(country);
+            return GDF.Account.Authentication.Device.Login(country, true);
         }
     }
 }

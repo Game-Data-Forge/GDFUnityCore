@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using GDFFoundation;
 using GDFRuntime;
@@ -7,131 +6,104 @@ namespace GDFUnity
 {
     public abstract class CoreAccountConsent : IRuntimeAccountManager.IRuntimeConsent
     {
-        static private class Exceptions
-        {
-            static public GDFException NoLicense => new GDFException("CNS", 01, "No license found ! Please, Refresh the license first.");
-        }
-
-
-        protected LicenseInformation _license;
-        private bool _consent;
-
-        public bool AgreedToLicense
-        {
-            get
-            {
-                return _consent;
-            }
-            set => _consent = value;
-        }
-        public string LicenseURL => _License.URL;
-        public string LicenseName => _License.Name;
-        public string LicenseVersion => _License.Version;
-        protected LicenseInformation _License
-        {
-            get
-            {
-                if (_license == null)
-                {
-                    throw Exceptions.NoLicense;
-                }
-                return _license;
-            }
-        }
-
-        public abstract Job RefreshLicense();
-
-        public abstract Job SaveLicenseAgreement();
-
-        public abstract Job<bool> CheckLicenseAgreementValidity();
-
-        protected bool CheckTokenLicenseAgreement(MemoryJwtToken token)
-        {
-            if (!token.Consent) return false;
-
-            return token.ConsentVersion == _License.Version && token.ConsentName == _License.Name;
-        }
-        
-        protected void OnAccountChanged(IJobHandler handler, MemoryJwtToken token)
-        {
-            if (token != null)
-            {
-                _consent = false;
-                return;
-            }
-
-            try
-                {
-                    _consent = CheckTokenLicenseAgreement(token);
-                }
-                catch { }
-        }
+        public abstract IRuntimeAccountManager.IRuntimeConsent.ILicenseAgreement LicenseAgreement { get; }
     }
-    
+
     public abstract class CoreAccountConsent<T> : CoreAccountConsent
         where T : CoreAccountManager
     {
-        private T _manager;
-
-        public CoreAccountConsent(T manager)
+        private class Agreement : IRuntimeAccountManager.IRuntimeConsent.ILicenseAgreement
         {
-            _manager = manager;
+            private CoreAccountConsent<T> _consent;
 
-            _manager.AccountChanged.onBackgroundThread += OnAccountChanged;
-        }
-
-        ~CoreAccountConsent()
-        {
-            _manager.AccountChanged.onBackgroundThread -= OnAccountChanged;
-        }
-
-        public override Job RefreshLicense()
-        {
-            return _manager.JobLocker(() => Job.Run(RefreshLicenseRunner, "Refresh licence"));
-        }
-
-        public override Job SaveLicenseAgreement()
-        {
-            if (!_manager.IsAuthenticated)
+            public Agreement(CoreAccountConsent<T> consent)
             {
-                throw GDF.Exceptions.NotAuthenticated;
+                _consent = consent;
             }
 
-            return _manager.JobLocker(() => Job.Run(handler =>
+            public Job<bool> Get()
             {
-                // Get consent
-                string url = _manager.GenerateURL(_manager.storage.Country, $"/api/v1/accounts/{_manager.Reference}/consents");
-                List<GDFAccountConsent> consents = _manager.Get<List<GDFAccountConsent>>(handler.Split(), url);
+                return _consent._account.JobLocker(() => Job<bool>.Run(handler =>
+                {
+                    handler.StepAmount = 2;
 
-                // Update consent
-                consents[0].ConsentName = _License.Name;
-                consents[0].ConsentVersion = _License.Version;
-                consents[0].Consent = AgreedToLicense;
+                    // Refresh agreement
+                    _consent._license.RefreshRunner(handler.Split());
 
-                // Save consent
-                url = _manager.GenerateURL(_manager.storage.Country, $"/api/v1/accounts/{_manager.Reference}/consents");
-                _manager.Post<int>(handler.Split(), url, consents[0]);
+                    string url = _consent._account.GenerateURL(_consent._account.storage.Country, $"/api/v1/accounts/{_consent._account.Reference}/consents");
+                    GDFAccountConsent[] consents = _consent._account.Get<GDFAccountConsent[]>(handler.Split(), url);
+                    if (consents == null || consents.Length == 0)
+                    {
+                        return false;
+                    }
 
-            }, "Save licence agreement"));
-        }
+                    GDFAccountConsent consent = null;
+                    for (int i = 0; i < consents.Length; i++)
+                    {
+                        if (consents[i].ConsentName == _consent._license.Name)
+                        {
+                            consent = consents[i];
+                        }
+                    }
 
-        public override Job<bool> CheckLicenseAgreementValidity()
-        {
-            return _manager.JobLocker(() => Job<bool>.Run(handler =>
+                    if (consent == null)
+                    {
+                        return false;
+                    }
+
+                    // Check agreement
+                    return _consent._license.Version == consent.ConsentVersion && consent.Consent;
+                }, "Get licence agreement"));
+            }
+
+            public Job Set(bool agreeToLicense)
             {
-                // Check licence cache
-                RefreshLicenseRunner(handler);
+                return _consent._account.JobLocker(() => Job.Run(handler =>
+                {
+                    // Create consent
+                    GDFAccountConsent consent = new GDFAccountConsent()
+                    {
+                        Account = _consent._account.Token.Account,
+                        Project = _consent._account.Token.Project,
+                        Range = _consent._account.Token.Range,
+                        Channel = _consent._account.Token.Channel,
+                        Consent = agreeToLicense,
+                        ConsentName = _consent._license.Name,
+                        ConsentVersion = _consent._license.Version,
+                        Country = _consent._account.Token.Country
+                    };
 
-                // Check validity
-                return AgreedToLicense;
-            }, "Check licence agreement"));
+                    // Save consent
+                    string url = _consent._account.GenerateURL(_consent._account.storage.Country, $"/api/v1/accounts/{_consent._account.Reference}/consents");
+                    _consent._account.Post<int>(handler, url, consent);
+
+                }, "Set licence agreement"));
+            }
         }
 
-        private void RefreshLicenseRunner(IJobHandler handler)
+        private Agreement _licenseAgreement;
+        private T _account;
+        private RuntimeLicenseManager _license;
+
+        public override IRuntimeAccountManager.IRuntimeConsent.ILicenseAgreement LicenseAgreement
         {
-            string url = _manager.GenerateURL(Country.US, $"/api/v1/information/license");
-            _license = _manager.Get<LicenseInformation>(handler, url);
+            get
+            {
+                if (!_account.IsAuthenticated)
+                {
+                    throw GDF.Exceptions.NotAuthenticated;
+                }
+
+                return _licenseAgreement;
+            }
         }
 
+        public CoreAccountConsent(T account, RuntimeLicenseManager license)
+        {
+            _account = account;
+            _license = license;
+
+            _licenseAgreement = new Agreement(this);
+        }
     }
 }

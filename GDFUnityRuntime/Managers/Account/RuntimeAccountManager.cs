@@ -3,7 +3,7 @@ using GDFRuntime;
 
 namespace GDFUnity
 {
-    [Dependency(typeof(IRuntimeConfigurationEngine), typeof(IRuntimeThreadManager))]
+    [Dependency(typeof(IRuntimeConfigurationEngine), typeof(IRuntimeThreadManager), typeof(IRuntimeLicenseManager))]
     [JobLockers(typeof(IRuntimePlayerDataManager), typeof(IRuntimePlayerPersistanceManager))]
     public class RuntimeAccountManager : CoreAccountManager<RuntimeAccountAuthentication, RuntimeAccountCredentials, RuntimeAccountConsent>
     {
@@ -13,7 +13,7 @@ namespace GDFUnity
         {
             _authentication = new RuntimeAccountAuthentication(engine, this);
             _credentials = new RuntimeAccountCredentials(this);
-            _consent = new RuntimeAccountConsent(this);
+            _consent = new RuntimeAccountConsent(this, (RuntimeLicenseManager)engine.LicenseManager);
         }
     }
 }

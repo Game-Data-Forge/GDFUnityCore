@@ -9,7 +9,7 @@ namespace GDFUnity.Editor
     {
         internal const string HELP_URL = "/unity/editor-windows/account/overview"; 
         
-        [MenuItem("GDF/Account/Account...", priority = 11, secondaryPriority = 3)]
+        [MenuItem("GDF/Account/Account...", priority = 100, secondaryPriority = 3)]
         static public void Display()
         {
             AccountWindow window = GetWindow<AccountWindow>();
@@ -19,8 +19,10 @@ namespace GDFUnity.Editor
 
         internal AccountMenu menu;
 
-        public void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             GDFEditor.Account.AccountChanged.onMainThread -= OnAccountChanged;
         }
 

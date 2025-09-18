@@ -231,15 +231,13 @@ namespace Authentication
         {
             triggeredImmediate = false;
             triggeredDelay = false;
-            
+
             UnityJob task = GDF.Launch;
             yield return WaitJob(task);
 
-            task = GDF.Account.Consent.RefreshLicense();
+            task = GDF.License.Refresh();
             yield return WaitJob(task);
-
-            GDF.Account.Consent.AgreedToLicense = true;
-
+            
         }
 
         [UnityTearDown]

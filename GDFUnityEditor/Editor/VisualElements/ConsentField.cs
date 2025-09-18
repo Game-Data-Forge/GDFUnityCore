@@ -10,7 +10,8 @@ namespace GDFUnity.Editor
         public event Action<bool> onChanged;
 
         private Toggle _toggle;
-        private TextElement _label;
+        private Label _label;
+        private Button _refresh;
         private Job _job = null;
 
         public bool Value
@@ -23,21 +24,36 @@ namespace GDFUnity.Editor
         {
             style.flexDirection = FlexDirection.Row;
 
-            _label = new TextElement();
-            _label.AddToClassList("unity-base-field__label");
+            AddToClassList("unity-base-field");
+            AddToClassList("unity-toggle");
+
+            _label = new Label();
+            _label.style.flexGrow = 1;
+            _label.style.paddingTop = 2;
             _label.enableRichText = true;
 
             _toggle = new Toggle();
+            _toggle.AddToClassList("unity-label");
+            _toggle.AddToClassList("unity-label");
+            _toggle.AddToClassList("unity-base-field__label");
+            _toggle.AddToClassList("unity-toggle__label");
             _toggle.RegisterValueChangedCallback(ev =>
             {
-                GDFEditor.Account.Consent.AgreedToLicense = ev.newValue;
                 onChanged?.Invoke(ev.newValue);
             });
 
+            _toggle.hierarchy[0].style.flexDirection = FlexDirection.RowReverse;
+
+            _refresh = new Button();
+            _refresh.clicked += Refresh;
+            _refresh.text = "Refresh license";
+            _refresh.tooltip = "Refresh the GDF license information";
+
             Update();
 
-            Add(_label);
             Add(_toggle);
+            Add(_label);
+            Add(_refresh);
         }
 
         public void Refresh()
@@ -45,10 +61,11 @@ namespace GDFUnity.Editor
             if (_job != null) return;
 
             SetEnabled(false);
+            _refresh.SetEnabled(false);
 
             _job = Job.Run(async _ =>
             {
-                Job job = GDF.Account.Consent.RefreshLicense();
+                Job job = GDF.License.Refresh();
                 await job;
 
                 if (job.State != JobState.Success)
@@ -58,7 +75,7 @@ namespace GDFUnity.Editor
 
                 GDFEditor.Thread.RunOnMainThread(() =>
                 {
-                    SetEnabled(true);
+                    _refresh.SetEnabled(true);
                     _job.Dispose();
                     _job = null;
                     Update();
@@ -79,7 +96,7 @@ namespace GDFUnity.Editor
             string url = null;
             try
             {
-                url = GDF.Account.Consent.LicenseURL;
+                url = GDF.License.URL;
             }
             catch {}
 
@@ -89,7 +106,8 @@ namespace GDFUnity.Editor
                 return;
             }
 
-            _label.text = $"Agree to the <u><a href=\"{url}\">Terms of services</a></u>";
+            _label.text = $"Agree to the <u><a href=\"{url}\">Terms of services</a></u>.";
+            SetEnabled(true);
         }
     }
 }

@@ -213,7 +213,7 @@ namespace GDFUnity.Editor.ServiceProviders
 
             private void Register(AuthenticationView view)
             {
-                view.Load(GDFEditor.Account.Authentication.EmailPassword.Register(_view._view.country.value, _email.value));
+                view.Load(GDFEditor.Account.Authentication.EmailPassword.Register(_view._view.country.value, _email.value, true));
             }
 
             private void OnConsentChanged(bool value)

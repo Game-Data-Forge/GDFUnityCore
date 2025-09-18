@@ -5,7 +5,7 @@ namespace GDFUnity.Editor
 {
     public class DevicesWindow : Window
     {
-        [MenuItem("GDF/Account/Devices...", priority = 11, secondaryPriority = 0)]
+        [MenuItem("GDF/Account/Devices...", priority = 100, secondaryPriority = 0)]
         static public void Display()
         {
             DevicesWindow window = GetWindow<DevicesWindow>();

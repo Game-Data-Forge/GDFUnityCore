@@ -65,6 +65,7 @@ namespace GDFUnity.Editor
 
         public IEditorThreadManager ThreadManager => GDFManagers.UnsafeGet<IEditorThreadManager>();
         public IEditorServerManager ServerManager => GDFManagers.UnsafeGet<IEditorServerManager>();
+        public IEditorLicenseManager LicenseManager => GDFManagers.UnsafeGet<IEditorLicenseManager>();
         public IEditorEnvironmentManager EnvironmentManager => GDFManagers.UnsafeGet<IEditorEnvironmentManager>();
         public IEditorDeviceManager DeviceManager => GDFManagers.UnsafeGet<IEditorDeviceManager>();
         public IEditorAccountManager AccountManager => GDFManagers.UnsafeGet<IEditorAccountManager>();
@@ -76,6 +77,7 @@ namespace GDFUnity.Editor
 
         IRuntimeThreadManager IRuntimeEngine.ThreadManager => ThreadManager;
         IRuntimeServerManager IRuntimeEngine.ServerManager => ServerManager;
+        IRuntimeLicenseManager IRuntimeEngine.LicenseManager => LicenseManager;
         IRuntimeEnvironmentManager IRuntimeEngine.EnvironmentManager => EnvironmentManager;
         IRuntimeDeviceManager IRuntimeEngine.DeviceManager => DeviceManager;
         IRuntimeAccountManager IRuntimeEngine.AccountManager => AccountManager;
@@ -92,6 +94,7 @@ namespace GDFUnity.Editor
             GDFManagers.AddSingleton(EditorConfigurationEngine.Instance);
             GDFManagers.AddSingleton<IEditorThreadManager, EditorThreadManager>();
             GDFManagers.AddSingleton<IEditorServerManager, EditorServerManager>();
+            GDFManagers.AddSingleton<IEditorLicenseManager, EditorLicenseManager>();
             GDFManagers.AddSingleton<IEditorEnvironmentManager, EditorEnvironmentManager>();
             GDFManagers.AddSingleton<IEditorDeviceManager, EditorDeviceManager>();
             GDFManagers.AddSingleton<IEditorAccountManager, EditorAccountManager>();

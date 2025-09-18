@@ -10,6 +10,7 @@ namespace GDFRuntime
 
         public IRuntimeThreadManager ThreadManager { get; }
         public IRuntimeServerManager ServerManager { get; }
+        public IRuntimeLicenseManager LicenseManager { get; }
         public IRuntimeEnvironmentManager EnvironmentManager { get; }
         public IRuntimeDeviceManager DeviceManager { get; }
         public IRuntimeAccountManager AccountManager { get; }

@@ -18,7 +18,7 @@ namespace GDFUnity.Editor.ServiceProviders
             _login.text = "Login";
             _login.clicked += () =>
             {
-                Load(GDFEditor.Account.Authentication.Device.Login(view.country.value));
+                Load(GDFEditor.Account.Authentication.Device.Login(view.country.value, true));
             };
         }
 

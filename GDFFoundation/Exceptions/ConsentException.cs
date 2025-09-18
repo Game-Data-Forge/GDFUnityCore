@@ -58,7 +58,7 @@ namespace GDFFoundation
         static public ConsentException GDFConsentException => new ConsentException(90, $"The field {nameof(IFieldsConsent.Consent)} of consent for ${GDFConstants.K_GDF} is not valid. It's must be '${true}'.");
         static public ConsentException GDFConsentVersionException => new ConsentException(91, $"The field {nameof(IFieldsConsent.ConsentVersion)} of consent for ${GDFConstants.K_GDF} is not valid. It's must be '${GDFConstants.K_CONSENT_VERSION}'.");
         static public ConsentException GDFConsentNameException => new ConsentException(92, $"The field {nameof(IFieldsConsent.ConsentName)} of consent for ${GDFConstants.K_GDF} is not valid. It's must be '${GDFConstants.K_CONSENT_NAME}'.");
-        static public ConsentException TooMany => new ConsentException(99, $"Too many consent. The maximum is ${GDFConstants.K_CONSENT_MAX} consents. Recycle old consent");
+        static public ConsentException TooMany => new ConsentException(99, $"Too many consent. The maximum is ${GDFConstants.K_CUSTOM_CONSENT_MAX} consents. Recycle old consent");
         
         #endregion
 

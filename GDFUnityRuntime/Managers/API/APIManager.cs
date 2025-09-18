@@ -27,6 +27,8 @@ namespace GDFUnity
     /// </summary>
     public abstract class APIManager : AsyncManager
     {
+        static public ErrorManager<APIException> errorManager = new ErrorManager<APIException>();
+
         #region Instance methods
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace GDFUnity
         /// </summary>
         /// <param name="responseBody">The body of the response.</param>
         /// <returns>The found error.</returns>
-        private Exception ConvertToError(string responseBody)
+        private APIException ConvertToError(string responseBody)
         {
             try
             {
@@ -174,17 +176,15 @@ namespace GDFUnity
         /// <returns>The HTTP response.</returns>
         private string SendRequest(IJobHandler handler, string url, HttpMethod method, Dictionary<string, string> headers, object payload)
         {
-            handler.StepAmount = 6;
+            handler.StepAmount = 3;
             using HttpClient client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
-            handler.Step();
             using HttpRequestMessage request = new HttpRequestMessage(method, url);
-            handler.Step();
+            
             SetHeaders(request, headers);
             if (payload != null)
             {
                 request.Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
             }
-
             handler.Step();
 
             using HttpResponseMessage response = client.SendAsync(request).Result;
@@ -198,7 +198,7 @@ namespace GDFUnity
                     throw Exceptions.InvalidStatusCode(response);
                 }
 
-                throw ConvertToError(responseBody);
+                errorManager.Invoke(handler.Split(), ConvertToError(responseBody));
             }
 
             return responseBody;

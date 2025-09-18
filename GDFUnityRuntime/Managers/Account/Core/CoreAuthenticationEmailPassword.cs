@@ -8,7 +8,7 @@ namespace GDFUnity
 {
     public abstract class CoreAuthenticationEmailPassword : IRuntimeAccountManager.IRuntimeAuthentication.IRuntimeEmailPassword
     {
-        public abstract Job Register(Country country, string email);
+        public abstract Job Register(Country country, string email, bool agreeToLicense);
         public abstract Job Rescue(Country country, string email);
         public abstract Job Login(Country country, string email, string password);
     }
@@ -26,7 +26,7 @@ namespace GDFUnity
             _manager = manager;
         }
 
-        public override Job Register(Country country, string email)
+        public override Job Register(Country country, string email, bool agreeToLicense)
         {
             return _manager.JobLocker(() => Job.Run(handler =>
             {
@@ -38,9 +38,9 @@ namespace GDFUnity
                     Channel = _engine.Configuration.Channel,
                     Email = email,
                     LanguageIso = _LANGUAGE,
-                    Consent = _manager.Consent.AgreedToLicense,
-                    ConsentVersion = _manager.Consent.LicenseVersion,
-                    ConsentName = _manager.Consent.LicenseName,
+                    Consent = agreeToLicense,
+                    ConsentVersion = _engine.LicenseManager.Version,
+                    ConsentName = _engine.LicenseManager.Name,
                     Country = country
                 };
 

@@ -8,7 +8,7 @@ namespace GDFUnity
 {
     public abstract class CoreAuthenticationDevice : IRuntimeAccountManager.IRuntimeAuthentication.IRuntimeDevice
     {
-        public abstract Job Login(Country country);
+        public abstract Job Login(Country country, bool agreeToLicense);
     }
 
     public class CoreAuthenticationDevice<T> : CoreAuthenticationDevice where T : IRuntimeEngine
@@ -22,7 +22,7 @@ namespace GDFUnity
             _manager = manager;
         }
 
-        public override Job Login(Country country)
+        public override Job Login(Country country, bool agreeToLicense)
         {
             return _manager.JobLocker(() => Job.Run(handler =>
             {
@@ -54,9 +54,9 @@ namespace GDFUnity
                         LanguageIso = "en-US",
                         Channel = _engine.Configuration.Channel,
                         UniqueIdentifier = _engine.DeviceManager.Id,
-                        Consent = _manager.Consent.AgreedToLicense,
-                        ConsentVersion = _manager.Consent.LicenseVersion,
-                        ConsentName = _manager.Consent.LicenseName,
+                        Consent = agreeToLicense,
+                        ConsentVersion = _engine.LicenseManager.Version,
+                        ConsentName = _engine.LicenseManager.Name,
                         Country = country
                     };
 

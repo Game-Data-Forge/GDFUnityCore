@@ -22,13 +22,13 @@ namespace GDFFoundation
             /// Retrieves the full Git commit hash.
             /// </summary>
             /// <returns>The full commit hash as a <see cref="string"/>.</returns>
-            public override string GitCommit() => "349a0e48ba6f80ef069160944e62db48e600cb9a";
+            public override string GitCommit() => "5a08a90ceb501c7eacbcfdab97892ec6f702a68c";
             
             /// <summary>
             /// Retrieves the short Git commit hash.
             /// </summary>
             /// <returns>The short commit hash as a <see cref="string"/>.</returns>
-            public override string GitShortCommit() => "349a0e48b";
+            public override string GitShortCommit() => "5a08a90ce";
 
             /// <summary>
             /// Retrieves the name of the Git branch for this assembly.
@@ -54,13 +54,13 @@ namespace GDFFoundation
             /// Retrieves the date of the last Git commit.
             /// </summary>
             /// <returns>The date of the last Git commit as a <see cref="string"/>.</returns>
-            public override string GitLastCommitDate() => "2025-09-09T17:56:21+02:00";
+            public override string GitLastCommitDate() => "2025-09-17T16:50:17+02:00";
 
             /// <summary>
             /// Indicates whether the current state of the Git repository has uncommitted changes.
             /// </summary>
             /// <returns>A <see cref="string"/> representation of whether the repository is dirty ("true" for dirty, "false" otherwise).</returns>
-            public override string GitIsDirty() => "true";
+            public override string GitIsDirty() => "false";
 
             /// <summary>
             /// Retrieves the name of the current assembly information.
@@ -96,7 +96,7 @@ namespace GDFFoundation
             /// Retrieves the build date of the assembly.
             /// </summary>
             /// <returns>The build date as a <see cref="string"/>.</returns>
-            public override string BuildDate() => "2025-09-10 16:21:50-dirty";
+            public override string BuildDate() => "2025-09-17 16:50:17";
 
             /// <summary>
             /// Determines whether the NuGet SDK is used for the current assembly information setup.
@@ -108,13 +108,13 @@ namespace GDFFoundation
             // /// Retrieves the version information of the assembly.
             // /// </summary>
             // /// <returns>The version string of the assembly as a <see cref="string"/>.</returns>
-            //public override string Version() => "2025.910.1621-dirty";
+            //public override string Version() => "17/09/2025 16:50:17.ToString('yyyy.Mdd.HHmm'))";
 
             // /// <summary>
             // /// Retrieves the file version information of the assembly.
             // /// </summary>
             // /// <returns>The file version of the assembly as a <see cref="string"/>.</returns>
-            //public override string FileVersion() => "2025.910.1621-dirty";
+            //public override string FileVersion() => "2025.917.1650";
 
             /// <summary>
             /// Gets the target .NET version of the project.

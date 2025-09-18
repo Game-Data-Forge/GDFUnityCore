@@ -59,10 +59,7 @@ namespace PlayerData
             UnityJob job = GDF.Launch;
             yield return WaitJob(job);
             
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
-
-            GDF.Account.Consent.AgreedToLicense = true;
-
+            yield return (UnityJob)GDF.License.Refresh();
 
             job = GDF.Account.Authentication.Local.Login();
             yield return WaitJob(job);
@@ -74,7 +71,7 @@ namespace PlayerData
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            UnityJob job = GDF.Account.Authentication.Device.Login(country);
+            UnityJob job = GDF.Account.Authentication.Device.Login(country, true);
             yield return WaitJob(job);
 
             job = GDF.Player.Purge();

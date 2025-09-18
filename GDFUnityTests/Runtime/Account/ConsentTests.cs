@@ -9,7 +9,7 @@ namespace Account
 
         protected override UnityJob Connect()
         {
-            return GDF.Account.Authentication.Device.Login(country);
+            return GDF.Account.Authentication.Device.Login(country, licenseAgreement);
         }
     }
 }

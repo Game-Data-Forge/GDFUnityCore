@@ -80,6 +80,7 @@ namespace GDFUnity
         
         static public IRuntimeThreadManager Thread => StartedEngine.Get<IRuntimeThreadManager>();
         static public IRuntimeEnvironmentManager Environment => StartedEngine.Get<IRuntimeEnvironmentManager>();
+        static public IRuntimeLicenseManager License => StartedEngine.Get<IRuntimeLicenseManager>();
         static public IRuntimeDeviceManager Device => StartedEngine.Get<IRuntimeDeviceManager>();
         static public IRuntimeAccountManager Account => StartedEngine.Get<IRuntimeAccountManager>();
         static public IRuntimePlayerDataManager Player => AuthenticatedEngine.Get<IRuntimePlayerDataManager>();

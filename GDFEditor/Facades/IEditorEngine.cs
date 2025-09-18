@@ -32,6 +32,8 @@ namespace GDFEditor
         /// </remarks>
         /// <seealso cref="IEditorThreadManager"/>
         public new IEditorThreadManager ThreadManager { get; }
+        
+        public new IEditorLicenseManager LicenseManager { get; }
 
         /// <summary>
         /// Gets the instance of the server manager for the editor.

@@ -33,6 +33,16 @@ namespace GDFUnity.Editor
             }
         }
 
+        public bool enableRichText
+        {
+            get => _value.enableRichText;
+            set
+            {
+                _label.enableRichText = value;
+                _value.enableRichText = value;
+            }
+        }
+
         public Pool Pool { get; set; }
 
         public LabelField () : base()
@@ -56,7 +66,10 @@ namespace GDFUnity.Editor
 
         public void OnPooled() { }
 
-        public void OnReleased() { }
+        public void OnReleased()
+        {
+            enableRichText = false;
+        }
 
         public void Dispose()
         {

@@ -111,7 +111,7 @@ namespace GDFFoundation
         public const string K_CURRENCY_EXCEPTION_CATEGORY = "CRY";
         public const int K_CURRENCY_EXCEPTION_INDEX = 99000;
             
-        public static int K_CONSENT_MAX = 20;
+        public static int K_CUSTOM_CONSENT_MAX = 20;
         public static int K_SERVICE_MAX = 99;
         public static int K_CURRENCY_MAX = 99;
         public static int K_CHANNEL_MAX = 99;

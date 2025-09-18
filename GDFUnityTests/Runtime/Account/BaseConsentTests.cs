@@ -8,18 +8,11 @@ namespace Account
 {
     public abstract class BaseConsentTests
     {
-        [Test]
-        public void CanConsentToLicenseIfWithoutLicense()
-        {
-            GDF.Account.Consent.AgreedToLicense = true;
-        }
+        protected bool licenseAgreement = false;
 
-        [UnityTest]
-        public IEnumerator CanConsentToLicenseWithLicense()
+        public class ConsentDataTest : GDFPlayerData
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
-
-            GDF.Account.Consent.AgreedToLicense = true;
+            public bool Consent { get; set; }
         }
 
         [Test]
@@ -27,54 +20,54 @@ namespace Account
         {
             Assert.Catch<GDFException>(() =>
             {
-                string s = GDF.Account.Consent.LicenseName;
+                string s = GDF.License.Name;
             });
             Assert.Catch<GDFException>(() =>
             {
-                string s = GDF.Account.Consent.LicenseVersion;
+                string s = GDF.License.Version;
             });
             Assert.Catch<GDFException>(() =>
             {
-                string s = GDF.Account.Consent.LicenseURL;
+                string s = GDF.License.URL;
             });
         }
 
         [UnityTest]
         public IEnumerator CanGetLicenceInfoWithLicense()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            string s1 = GDF.Account.Consent.LicenseName;
-            string s2 = GDF.Account.Consent.LicenseVersion;
-            string s3 = GDF.Account.Consent.LicenseURL;
+            string s1 = GDF.License.Name;
+            string s2 = GDF.License.Version;
+            string s3 = GDF.License.URL;
         }
 
         [UnityTest]
         public IEnumerator CannotSignUpWithoutLicense()
         {
-            GDF.Account.Consent.AgreedToLicense = true;
+            licenseAgreement = true;
 
             yield return WaitJob(Connect(), JobState.Failure);
-            
+
         }
 
         [UnityTest]
         public IEnumerator CanSignUpWithLicense()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = true;
+            licenseAgreement = true;
 
             yield return WaitJob(Connect());
-            
+
         }
 
         [UnityTest]
         public IEnumerator CannotSignUpWithoutAgreeingToLicense()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = false;
+            licenseAgreement = false;
 
             yield return WaitJob(Connect(), JobState.Failure);
         }
@@ -82,9 +75,9 @@ namespace Account
         [UnityTest]
         public IEnumerator CanSignUpWithAgreeingToLicense()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = true;
+            licenseAgreement = true;
 
             yield return WaitJob(Connect());
 
@@ -93,14 +86,14 @@ namespace Account
         [UnityTest]
         public IEnumerator CanSignInWithoutLicense()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = true;
+            licenseAgreement = true;
 
             yield return WaitJob(Connect());
 
             GDF.Kill();
-            
+
             yield return WaitJob(GDF.Launch);
 
             yield return WaitJob(Connect());
@@ -108,59 +101,109 @@ namespace Account
         }
 
         [UnityTest]
-        public IEnumerator CanCheckConsent()
+        public IEnumerator CanGetLicenseAgreement()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = true;
+            licenseAgreement = true;
 
             yield return WaitJob(Connect());
 
-            Job<bool> validity = GDF.Account.Consent.CheckLicenseAgreementValidity();
-            yield return WaitJob(validity);
+            Job<bool> agreement = GDF.Account.Consent.LicenseAgreement.Get();
+            yield return WaitJob(agreement);
 
-            Assert.IsTrue(validity.Result);
+            Assert.IsTrue(agreement.Result);
 
         }
 
         [UnityTest]
-        public IEnumerator CanSaveConsent()
+        public IEnumerator CanSetLicenseAgreement()
         {
-            yield return (UnityJob)GDF.Account.Consent.RefreshLicense();
+            yield return (UnityJob)GDF.License.Refresh();
 
-            GDF.Account.Consent.AgreedToLicense = true;
-
-            yield return WaitJob(Connect());
-
-            GDF.Account.Consent.AgreedToLicense = false;
-
-            yield return WaitJob(GDF.Account.Consent.SaveLicenseAgreement());
+            licenseAgreement = true;
 
             yield return WaitJob(Connect());
 
-            Assert.IsFalse(GDF.Account.Consent.AgreedToLicense);
+            yield return WaitJob(GDF.Account.Consent.LicenseAgreement.Set(false));
 
-            GDF.Account.Consent.AgreedToLicense = true;
-
-            yield return WaitJob(GDF.Account.Consent.SaveLicenseAgreement());
+            UnityJob<bool> job = GDF.Account.Consent.LicenseAgreement.Get();
+            yield return WaitJob(job);
+            Assert.IsFalse(job.Result);
 
             yield return WaitJob(Connect());
 
-            Assert.IsTrue(GDF.Account.Consent.AgreedToLicense);
+            job = GDF.Account.Consent.LicenseAgreement.Get();
+            yield return WaitJob(job);
+            Assert.IsFalse(job.Result);
+
+            yield return WaitJob(GDF.Account.Consent.LicenseAgreement.Set(true));
+            
+            job = GDF.Account.Consent.LicenseAgreement.Get();
+            yield return WaitJob(job);
+            Assert.IsTrue(job.Result);
+
+            yield return WaitJob(Connect());
+            
+            job = GDF.Account.Consent.LicenseAgreement.Get();
+            yield return WaitJob(job);
+            Assert.IsTrue(job.Result);
         }
 
+        // [UnityTest]
+        // public IEnumerator CannotSyncIfNoConsent()
+        // {
+        //     yield return (UnityJob)GDF.License.Refresh();
+
+        //     GDF.Account.Consent.AgreedToLicense = true;
+        //     yield return WaitJob(Connect());
+
+        //     GDF.Account.Consent.AgreedToLicense = false;
+
+        //     ConsentDataTest data = new ConsentDataTest();
+        //     GDF.Player.Add(data);
+
+        //     yield return WaitJob(GDF.Account.Consent.SaveLicenseAgreement());
+
+        //     yield return WaitJob(GDF.Player.Sync(), JobState.Failure);
+
+        //     yield return WaitJob(Connect());
+
+        //     yield return WaitJob(GDF.Player.Sync(), JobState.Failure);
+
+        //     Assert.IsFalse(GDF.Account.Consent.AgreedToLicense);
+
+        //     GDF.Account.Consent.AgreedToLicense = true;
+
+        //     yield return WaitJob(GDF.Account.Consent.SaveLicenseAgreement());
+
+        //     yield return WaitJob(Connect());
+
+        // }
+
         [Test]
-        public void CannotSaveConsentIfNotAuthenticated()
+        public void CannotetLicenseAgreementIfNotAuthenticated()
         {
             Assert.Throws<GDFException>(() =>
             {
-                UnityJob job = GDF.Account.Consent.SaveLicenseAgreement();
+                UnityJob job = GDF.Account.Consent.LicenseAgreement.Set(true);
+            });
+        }
+
+        [Test]
+        public void CannotGetLicenseAgreementIfNotAuthenticated()
+        {
+            Assert.Throws<GDFException>(() =>
+            {
+                UnityJob job = GDF.Account.Consent.LicenseAgreement.Get();
             });
         }
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            licenseAgreement = false;
+
             UnityJob task = GDF.Launch;
             yield return WaitJob(task);
         }
@@ -173,7 +216,7 @@ namespace Account
                 UnityJob task = GDF.Account.Delete();
                 yield return WaitJob(task);
             }
-            
+
             GDF.Kill();
         }
 
@@ -184,6 +227,16 @@ namespace Account
             yield return job;
 
             if (job.State != expectedState)
+            {
+                Assert.Fail("Task '" + job.Name + "' finished with the unexpected state '" + job.State + "' !\n" + job.Error);
+            }
+        }
+
+        protected IEnumerator WaitJob(UnityJob<bool> job)
+        {
+            yield return job;
+
+            if (job.State != JobState.Success)
             {
                 Assert.Fail("Task '" + job.Name + "' finished with the unexpected state '" + job.State + "' !\n" + job.Error);
             }

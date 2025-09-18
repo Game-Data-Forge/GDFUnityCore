@@ -153,6 +153,33 @@ namespace GDFFoundation
 
         #endregion
 
+        public GDFAccountConsent()
+        {
+
+        }
+
+        public GDFAccountConsent(long account,
+            int range,
+            long project,
+            IFieldsConsent signConsent,
+            string address,
+            DateTime now)
+        {
+            LanguageIso = signConsent.LanguageIso;
+            Consent = signConsent.Consent;
+            ConsentVersion = signConsent.ConsentVersion;
+            ConsentName = signConsent.ConsentName;
+            AdditionalOptions = signConsent.AdditionalOptions;
+            Country = signConsent.Country;
+            Channel = signConsent.Channel;
+            Creation = now;
+            Modification = now;
+            Account = account;
+            Range = range;
+            Project = project;
+            Address = address;
+        }
+
         public void ModifiedToNewValues(GDFAccountConsent item)
         {
             LanguageIso = item.LanguageIso;
