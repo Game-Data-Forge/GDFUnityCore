@@ -11,103 +11,107 @@ namespace Engine
         [Test]
         public void CannotUseSomeGDFFeaturesIfNotLaunched()
         {
-            Assert.Throws<GDFException> (() => {
+            Assert.Throws<GDFException>(() =>
+            {
                 string str = GDF.Thread.ToString();
             });
-            Assert.Throws<GDFException> (() => {
+            Assert.Throws<GDFException>(() =>
+            {
                 string str = GDF.Environment.ToString();
             });
-            Assert.Throws<GDFException> (() => {
+            Assert.Throws<GDFException>(() =>
+            {
                 string str = GDF.Device.ToString();
             });
-            Assert.Throws<GDFException> (() => {
+            Assert.Throws<GDFException>(() =>
+            {
                 string str = GDF.Account.ToString();
             });
-            Assert.Throws<GDFException> (() => {
+            Assert.Throws<GDFException>(() =>
+            {
                 string str = GDF.Player.ToString();
             });
         }
-        
+
         [Test]
         public void CanUseSomeGDFFeaturesIfNotLaunched()
         {
             string str = GDF.Configuration.ToString();
             str = GDF.Launch.ToString();
         }
-        
+
         [UnityTest]
         public IEnumerator CanStart()
         {
             UnityJob task = GDF.Launch;
 
-            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running});
+            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running });
 
-            yield return task;
-
-            Assert.AreEqual(task.State, JobState.Success);
+            yield return WaitJob(task);
         }
-        
+
         [UnityTest]
         public IEnumerator CanStop()
         {
             UnityJob task = GDF.Launch;
-            yield return task;
+            yield return WaitJob(task);
 
-            Assert.AreEqual(task.State, JobState.Success);
-            
             Job awaitedTask = GDF.Account.Authentication.Device.Login(Country.FR, true);
             task = GDF.Stop();
 
-            yield return task;
+            yield return WaitJob(task);
 
             Assert.IsTrue(awaitedTask.IsDone);
-            Assert.AreEqual(task.State, JobState.Success);
         }
-        
+
         [UnityTest]
         public IEnumerator CanKill()
         {
             UnityJob task = GDF.Launch;
-            yield return task;
+            yield return WaitJob(task);
 
-            Assert.AreEqual(task.State, JobState.Success);
-            
             Job awaitedTask = GDF.Account.Authentication.Device.Login(Country.FR, true);
             GDF.Kill();
 
-            Assert.IsFalse(awaitedTask.IsDone);
+            yield return WaitJob(awaitedTask, JobState.Cancelled);
+
+            Assert.IsTrue(awaitedTask.IsDone);
         }
-        
+
         [UnityTest]
         public IEnumerator CanRestart()
         {
             UnityJob task = GDF.Launch;
 
-            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running});
+            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running });
 
-            yield return task;
+            yield return WaitJob(task);
 
-            Assert.AreEqual(task.State, JobState.Success);
-            
             task = GDF.Stop();
 
-            yield return task;
-            
-            Assert.AreEqual(task.State, JobState.Success);
+            yield return WaitJob(task);
 
             task = GDF.Launch;
 
-            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running});
+            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running });
 
-            yield return task;
-
-            Assert.AreEqual(task.State, JobState.Success);
+            yield return WaitJob(task);
         }
-        
+
         [SetUp]
         public void Setup()
         {
             GDF.Kill();
+        }
+
+        protected IEnumerator WaitJob(UnityJob task, JobState expectedState = JobState.Success)
+        {
+            yield return task;
+
+            if (task.State != expectedState)
+            {
+                Assert.Fail("Task '" + task.Name + "' finished with the unexpected state '" + task.State + "' !\n" + task.Error);
+            }
         }
     }
 }

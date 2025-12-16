@@ -13,7 +13,7 @@ namespace GDFUnity
         {
             _authentication = new RuntimeAccountAuthentication(engine, this);
             _credentials = new RuntimeAccountCredentials(this);
-            _consent = new RuntimeAccountConsent(this, (RuntimeLicenseManager)engine.LicenseManager);
+            _consent = new RuntimeAccountConsent(engine, this, (RuntimeLicenseManager)engine.LicenseManager);
         }
     }
 }

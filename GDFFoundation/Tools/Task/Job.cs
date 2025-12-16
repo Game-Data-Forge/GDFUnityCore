@@ -22,6 +22,8 @@ namespace GDFFoundation
     {
         #region Static fields and properties
 
+        static public bool silentExceptions = false;
+
         static private Pool<Job> _pool = new Pool<Job>();
 
         #endregion
@@ -112,19 +114,20 @@ namespace GDFFoundation
                     progress = 1;
                     _state = JobState.Success;
                 }
-                catch (TaskCanceledException e)
+                catch (TaskCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
                 catch (Exception e)
                 {
+                    GDFLogger.Error(e);
+
                     _error = e;
                     _state = JobState.Failure;
-                    GDFLogger.Error(e);
                 }
             }
         }
@@ -141,19 +144,20 @@ namespace GDFFoundation
                     progress = 1;
                     _state = JobState.Success;
                 }
-                catch (TaskCanceledException e)
+                catch (TaskCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
                 catch (Exception e)
                 {
+                    GDFLogger.Error(e);
+
                     _error = e;
                     _state = JobState.Failure;
-                    GDFLogger.Error(e);
                 }
             }
         }
@@ -193,6 +197,13 @@ namespace GDFFoundation
         {
             while (!IsDone)
             {
+            }
+
+            if (silentExceptions) return;
+
+            if (State == JobState.Failure)
+            {
+                throw Error;
             }
         }
 
@@ -282,19 +293,20 @@ namespace GDFFoundation
                     progress = 1;
                     _state = JobState.Success;
                 }
-                catch (TaskCanceledException e)
+                catch (TaskCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
                 catch (Exception e)
                 {
+                    GDFLogger.Error(e);
+
                     _error = e;
                     _state = JobState.Failure;
-                    GDFLogger.Error(e);
                 }
             }
         }
@@ -311,19 +323,20 @@ namespace GDFFoundation
                     progress = 1;
                     _state = JobState.Success;
                 }
-                catch (TaskCanceledException e)
+                catch (TaskCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     _state = JobState.Cancelled;
                 }
                 catch (Exception e)
                 {
+                    GDFLogger.Error(e);
+                    
                     _error = e;
                     _state = JobState.Failure;
-                    GDFLogger.Error(e);
                 }
             }
         }

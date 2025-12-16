@@ -37,17 +37,17 @@ namespace GDFFoundation
         ///     Shuffles the elements of the given list in random order.
         /// </summary>
         /// <typeparam name="T">The type of elements in the list.</typeparam>
-        /// <param name="sList">The list to be shuffled.</param>
-        public static void Shuffle<T>(this IList<T> sList)
+        /// <param name="self">The list to be shuffled.</param>
+        public static void Shuffle<T>(this IList<T> self)
         {
-            int tN = sList.Count;
-            while (tN > 1)
+            int number = self.Count;
+            while (number > 1)
             {
-                tN--;
-                int tK = KRandom.Next(tN + 1);
-                T tValue = sList[tK];
-                sList[tK] = sList[tN];
-                sList[tN] = tValue;
+                number--;
+                int rng = KRandom.Next(number + 1);
+                T tmp = self[rng];
+                self[rng] = self[number];
+                self[number] = tmp;
             }
         }
 

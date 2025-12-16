@@ -4,7 +4,7 @@ using GDFUnity;
 using System;
 using UnityEngine;
 
-namespace GDFUnityEditor
+namespace GDFUnity.Editor
 {
     /// <summary>
     /// The GDFLoggerUnityEditor class is an implementation of the IGDFLogger interface used for logging messages in the Unity Editor.

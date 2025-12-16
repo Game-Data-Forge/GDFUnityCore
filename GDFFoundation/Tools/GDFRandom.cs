@@ -143,7 +143,7 @@ namespace GDFFoundation
                 loremText = char.ToUpper(loremText[0]) + loremText.Substring(1);
             }
 
-            return loremText;
+            return loremText.TrimEnd(new char[]{'.','!','?',';',',','…'}) +".";
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace GDFFoundation
         public static string RandomCaptchaNoMistake(uint sLength)
         {
             StringBuilder rReturn = new StringBuilder();
-            const string cChars = "cdefhjkmnpqrtwxyCEFHKMNPRTWXY379";
+            const string cChars = "cdefhkmnpqrtwxyCEFHKMNPRTWXY379";
             int tCharLenght = cChars.Length;
             while (rReturn.Length < sLength)
             {

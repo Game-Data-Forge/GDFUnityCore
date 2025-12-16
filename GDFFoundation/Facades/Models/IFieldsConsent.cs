@@ -31,15 +31,6 @@ namespace GDFFoundation
         #region Instance fields and properties
 
         /// <summary>
-        /// Gets or sets the ISO language code associated with the consent.
-        /// </summary>
-        /// <remarks>
-        /// The property typically stores a language code following the ISO 639 standard.
-        /// This value may be used for localization or internationalization purposes.
-        /// </remarks>
-        public string LanguageIso { set; get; }
-
-        /// <summary>
         /// Represents the consent provided by a user for a specific operation or action.
         /// </summary>
         /// <remarks>

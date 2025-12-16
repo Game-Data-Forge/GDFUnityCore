@@ -9,6 +9,14 @@ namespace GDFUnity.Editor
 {
     public class EditorEngine : IEditorEngine
     {
+        public enum State
+        {
+            Stopped = 0,
+            Starting = 1,
+            Started = 2,
+            Stopping = 3
+        }
+
         static private DateTime nextCheck = DateTime.MinValue;
         static private readonly object _lock = new object();
         static private EditorEngine _instance = null;
@@ -50,9 +58,22 @@ namespace GDFUnity.Editor
         }
         static internal EditorEngine UnsafeInstance => _instance;
 
+        static private State _state = State.Stopped;
+
+        static public State state
+        {
+            get => _state;
+            set
+            {
+                _state = value;
+            }
+        }
+
         [InitializeOnLoadMethod]
         static private void EditorStart()
         {
+            GDFLogger.SetWriter(new GDFLoggerUnityEditor(GDFLogLevel.Trace));
+
             GDF.Instance = () => Instance;
             GDFEditor.Instance = () => Instance;
         }
@@ -87,6 +108,7 @@ namespace GDFUnity.Editor
 
         private EditorEngine(IEditorConfiguration configuration)
         {
+            state = State.Starting;
             _configuration = configuration;
 
             GDFManagers.Start();
@@ -104,8 +126,10 @@ namespace GDFUnity.Editor
 
             GDFManagers.Build<IEditorEngine>(this);
 
-            _launch = Job.Run((handler) => {
-                GDFManagers.UnsafeGet<IEditorTypeManager>().LoadRunner(handler);
+            _launch = Job.Run((handler) =>
+            {
+                TypeManager.LoadRunner(handler);
+                state = State.Started;
             }, "Start engine");
             _launch.Pool = null; // Makes sure the launch job is never recycled.
         }
@@ -117,13 +141,18 @@ namespace GDFUnity.Editor
 
         public Job Stop()
         {
-            return Job.Run(async handler => {
+            state = State.Stopping;
+            return Job.Run(async handler =>
+            {
                 handler.StepAmount = 3;
+
+                await _launch;
+
                 try
                 {
                     await PlayerDataManager.Stop();
                     handler.Step();
-                    
+
                     await AccountManager.Stop();
                     handler.Step();
 
@@ -133,6 +162,7 @@ namespace GDFUnity.Editor
                 finally
                 {
                     _launch.Dispose();
+                    state = State.Stopped;
                     _instance = null;
                 }
             }, "Stop engine");
@@ -140,6 +170,11 @@ namespace GDFUnity.Editor
 
         public void Kill()
         {
+            PlayerDataManager.Kill();
+            AccountManager.Kill();
+            EnvironmentManager.Kill();
+
+            state = State.Stopped;
             _instance = null;
         }
     }

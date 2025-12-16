@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GDFFoundation;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -135,6 +134,7 @@ namespace GDFUnity.Editor
 
             toolbar.Add(_spinner);
             toolbar.Add(_progress);
+            toolbar.Add(new MessageState());
             footer.Add(toolbar);
 
             VisualElement logo = new VisualElement();

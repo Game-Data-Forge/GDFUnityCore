@@ -43,47 +43,38 @@ namespace GDFFoundation
                 {
                     return result + "_ti_" + tDateTime.ToString("yyyy-MM-dd-HH-mm");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisHour:
                 {
                     return result + "_th_" + tDateTime.ToString("yyyy-MM-dd-HH");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisDate:
                 {
                     return result + "_td_" + tDateTime.ToString("yyyy-MM-dd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisMonth:
                 {
                     return result + "_tm_" + tDateTime.ToString("yyyy-MM");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Day:
                 {
                     return result + "_dy_" + tDateTime.ToString("ddd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Date:
                 {
                     return result + "_d_" + tDateTime.ToString("dd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Hour:
                 {
                     return result + "_h_" + tDateTime.ToString("HH");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Month:
                 {
                     return result + "_m_" + tDateTime.ToString("MM");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Year:
                 {
                     return result + "_y_" + tDateTime.ToString("yyyy");
                 }
-                break;
             }
 
             return result;
@@ -109,47 +100,38 @@ namespace GDFFoundation
                 {
                     return tDateTime.ToString("yyyy/MM/dd HH:mm:00");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisHour:
                 {
                     return tDateTime.ToString("yyyy/MM/dd HH:00:00");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisDate:
                 {
                     return tDateTime.ToString("yyyy/MM/dd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.ThisMonth:
                 {
                     return tDateTime.ToString("yyyy/MM");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Day:
                 {
                     return tDateTime.ToString("ddd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Date:
                 {
                     return tDateTime.ToString("dd");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Hour:
                 {
                     return tDateTime.ToString("HH");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Month:
                 {
                     return tDateTime.ToString("MM");
                 }
-                break;
                 case GDFStatisticsConsolidateRange.Year:
                 {
                     return tDateTime.ToString("yyyy");
                 }
-                break;
             }
 
             return result;

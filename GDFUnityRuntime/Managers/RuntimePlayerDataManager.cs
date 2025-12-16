@@ -1060,7 +1060,7 @@ namespace GDFUnity
 
                 _headers.Clear();
                 _engine.ServerManager.FillHeaders(_headers, _engine.AccountManager.Bearer);
-                Delete<int>(handler.Split(), _engine.ServerManager.BuildSyncURL("/api/v1/player-data"), _headers);
+                Delete(handler.Split(), _engine.ServerManager.BuildSyncURL("/api/v1/player-data"), _headers);
             }
         }
 
@@ -1325,7 +1325,7 @@ namespace GDFUnity
                 _engine.ServerManager.FillHeaders(_headers, _engine.AccountManager.Bearer);
                 try
                 {
-                    Post<string>(handler.Split(), _engine.ServerManager.BuildSyncURL("/api/v1/player-data"), _headers, exchange);
+                    Post(handler.Split(), _engine.ServerManager.BuildSyncURL("/api/v1/player-data"), _headers, exchange);
                 }
                 catch (APIException e)
                 {

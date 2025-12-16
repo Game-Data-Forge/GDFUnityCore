@@ -27,7 +27,7 @@ namespace GDFFoundation
         /// </remarks>
         [GDFDbAccess(updateAccess = GDFDbColumnAccess.Deny)]
         [GDFDbUnique(constraintName = "Identity")]
-        public long Project { get; set; }
+        public new long Project { get; set; }
 
         #endregion
     }

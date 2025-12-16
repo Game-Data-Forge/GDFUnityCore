@@ -59,7 +59,7 @@ namespace GDFFoundation
         {
             if (!InstalledAssemblies.Contains(assembly))
             {
-                Type? versionType = assembly.GetTypes()
+                Type versionType = assembly.GetTypes()
                     .FirstOrDefault(t => t.Name == nameof(GDFAssemblyInfo) && typeof(GDFAssemblyInformation).IsAssignableFrom(t));
                 if (versionType == null)
                 {

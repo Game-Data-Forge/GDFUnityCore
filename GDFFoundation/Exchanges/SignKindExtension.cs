@@ -27,10 +27,6 @@ namespace GDFFoundation
                     return "R";
                 case GDFAccountSignType.Apple:
                     return "D";
-                case GDFAccountSignType.Microsoft:
-                    return "I";
-                case GDFAccountSignType.Twitter:
-                    return "Q";
                 case GDFAccountSignType.LinkedIn:
                     return "U";
                 case GDFAccountSignType.Discord:

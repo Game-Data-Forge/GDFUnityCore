@@ -68,6 +68,7 @@ namespace GDFFoundation
         /// <summary>
         ///     Represents the duration of an GDFAccountService.
         /// </summary>
+        [Obsolete]
         public long Duration { set; get; } = 0;
 
         /// <summary>

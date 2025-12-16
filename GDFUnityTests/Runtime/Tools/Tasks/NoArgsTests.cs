@@ -7,6 +7,8 @@ using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Tools.Tasks
 {
@@ -113,10 +115,11 @@ namespace Tools.Tasks
                 Thread.Sleep(200);
             });
 
-            Assert.Contains(task.State, new JobState[] { JobState.Pending, JobState.Running});
-
-            yield return null;
-
+            while (task.State == JobState.Pending)
+            {
+                yield return null;
+            }
+            
             Assert.AreEqual(task.State, JobState.Running);
 
             yield return task;
@@ -127,18 +130,35 @@ namespace Tools.Tasks
         [UnityTest]
         public IEnumerator CanCatchExceptions()
         {
+            LogAssert.Expect(LogType.Exception, new Regex(".*"));
+
             UnityJob task = Job.Run(_ => {
-                Thread.Sleep(200);
+                Thread.Sleep(500);
                 throw new TestException("Boop !");
             });
-
-            Debug.unityLogger.logEnabled = false;
+            
             yield return task;
-            Debug.unityLogger.logEnabled = true;
 
             Assert.AreEqual(task.State, JobState.Failure);
             Assert.AreEqual(task.Error.GetType(), typeof(TestException));
             Assert.IsNotNull(task.Error);
+            
+            Thread.Sleep(500);
+        }
+
+        [Test]
+        public void CanCatchExceptionOnWaitSync()
+        {
+            LogAssert.Expect(LogType.Exception, new Regex(".*"));
+
+            UnityJob task = Job.Run(_ =>
+            {
+                throw new TestException("Boop !");
+            });
+
+            Assert.Throws<TestException>(() => task.Wait());
+            
+            Thread.Sleep(500);
         }
 
         [UnityTest]
@@ -232,7 +252,6 @@ namespace Tools.Tasks
                     Assert.That(last, Is.LessThan(progress));
                     last = progress;
 
-
                     progress = handler.Step();
                     Assert.That(last, Is.LessThan(progress));
                     last = progress;
@@ -264,6 +283,113 @@ namespace Tools.Tasks
             yield return task;
 
             Assert.AreEqual(task.State, JobState.Success);
+        }
+
+        [Test]
+        public void CanSplitJobProgressBis()
+        {
+            UnityJob task = Job.Run(handler =>
+            {
+                Action<IJobHandler> func = handler =>
+                {
+                    handler.StepAmount = 100;
+
+                    for (int i = 0; i < handler.StepAmount; i++)
+                    {
+                        Thread.Sleep(1);
+                        handler.Step();
+                    }
+                };
+
+                handler.StepAmount = 3;
+
+                func(handler.Split());
+
+                handler.Step();
+
+                func(handler.Split());
+            });
+
+            float last = 0;
+            float progress = 0;
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            while (!task.IsDone)
+            {
+                Thread.Sleep(30);
+
+                progress = task.Progress;
+
+                Assert.That(last, Is.LessThan(progress));
+                Assert.That(progress, Is.LessThanOrEqualTo(1));
+
+                last = progress;
+            }
+
+            Assert.AreEqual(task.State, JobState.Success);
+        }
+
+        [UnityTest]
+        public IEnumerator SteppingTooMuchThrowsWarnings()
+        {
+            LogAssert.Expect(LogType.Warning, new Regex(".*"));
+
+            UnityJob task = Job.Run(handler =>
+            {
+                handler.StepAmount = 3;
+                for (int i = 0; i < 10; i++)
+                {
+                    handler.Step();
+                }
+            });
+
+            yield return task;
+
+            Assert.AreEqual(task.State, JobState.Success);
+            
+            task.Dispose();
+
+            Thread.Sleep(500);
+        }
+
+        [UnityTest]
+        public IEnumerator SteppingTooFewThrowsWarnings()
+        {
+            LogAssert.Expect(LogType.Warning, new Regex(".*"));
+
+            UnityJob task = Job.Run(handler =>
+            {
+                handler.StepAmount = 10;
+            });
+
+            yield return task;
+
+            Assert.AreEqual(task.State, JobState.Success);
+            task.Dispose();
+
+            Thread.Sleep(500);
+        }
+
+        [UnityTest]
+        public IEnumerator SteppingJustEnoughDoesNotGenerateWarnings()
+        {
+            UnityJob task = Job.Run(handler =>
+            {
+                handler.StepAmount = 2;
+                handler.Step();
+            });
+
+            yield return task;
+
+            Assert.AreEqual(task.State, JobState.Success);
+            
+            LogAssert.NoUnexpectedReceived();
+
+            task.Dispose();
+
+            Thread.Sleep(500);
         }
 
         private void Runner(IJobHandler handler)

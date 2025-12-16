@@ -1,4 +1,5 @@
 using GDFEditor;
+using GDFFoundation;
 
 namespace GDFUnity.Editor
 {
@@ -15,6 +16,13 @@ namespace GDFUnity.Editor
             _device = new EditorAuthenticationDevice(engine, manager);
             _emailPassword = new EditorAuthenticationEmailPassword(engine, manager);
             _reSign = new EditorAuthenticationLastSession(engine, manager);
+
+            engine.EnvironmentManager.EnvironmentChanged.onBackgroundThread += OnEnvironmentChanged;
+        }
+
+        private void OnEnvironmentChanged(IJobHandler handler, ProjectEnvironment environment)
+        {
+            SignOutRunner(handler);
         }
     }
 }

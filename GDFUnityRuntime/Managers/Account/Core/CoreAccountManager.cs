@@ -117,6 +117,10 @@ namespace GDFUnity
         {
             return Post<T>(handler, url, _headers, payload);
         }
+        internal void Post(IJobHandler handler, string url, object payload)
+        {
+            Post(handler, url, _headers, payload);
+        }
         internal T Put<T>(IJobHandler handler, string url)
         {
             return Put<T>(handler, url, _headers);

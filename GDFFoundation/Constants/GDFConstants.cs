@@ -127,7 +127,7 @@ namespace GDFFoundation
         /// <summary>
         ///     Represents a fake crucial key used in the application.
         /// </summary>
-        public const string K_FAKE_CRUCIAL_KEY = "89er845ds1f23zegtREF67F89ZR4G5DS64G4Q65SF4CD8SQ78945318964dfs4897T";
+        public const string K_FAKE_CRUCIAL_KEY = "K_FAKE_CRUCIAL_KEY-89er845ds1f23zeDS64G4Q65SF4CD8SQ78945318964dfs4897T";
 
         /// <summary>
         ///     Represents the environment kind of the fake project.
@@ -142,19 +142,19 @@ namespace GDFFoundation
         /// <summary>
         ///     This constant represents the fake project key.
         /// </summary>
-        public const string K_FAKE_PROJECT_KEY = "78945318964df89zegter845ds1f23s4897TREFG4Q65SF4CD8SQ67F89ZR4G5DS64";
+        public const string K_FAKE_PROJECT_KEY = "K_FAKE_PROJECT_KEY-78945318964d1f23s4897TFG4Q65SF4CD8SQ67F89ZR4G5DS64";
 
-        public const string K_FAKE_PROJECT_NAME = "MY GAME";
+        public const string K_FAKE_PROJECT_NAME = "K_FAKE_PROJECT_NAME";
 
         /// <summary>
         ///     Represents the fake secret key used in the project.
         /// </summary>
-        public const string K_FAKE_SECRET_KEY = "zegt78945318964df89er845ds1f23s4897TREF67F89ZR4G5DS64G4Q65SF4CD8SQ";
+        public const string K_FAKE_SECRET_KEY = "K_FAKE_SECRET_KEY-f89er845ds1f23s4897TREF67F89ZR4G5DS64G4Q65SF4CD8SQ";
 
         /// <summary>
         ///     Represents the treat key used in a web treat configuration.
         /// </summary>
-        public const string K_FAKE_TREAT_KEY = "egtREF67F889er845ds1f23z9ZR4G5DS64GCD8SQ78945318964dfs4897T4Q65SF4";
+        public const string K_FAKE_TREAT_KEY = "K_FAKE_TREAT_KEY-egtREF67F889er84G5DS64GCD8Q78945318964dfs4897T4Q65SF4";
 
         /// <summary>
         ///     GDFConstants class contains various constant values used throughout the application.

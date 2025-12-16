@@ -119,7 +119,6 @@ namespace GDFFoundation
             RowId = sOther.RowId;
             DataVersion = sOther.DataVersion;
             SyncDateTime = sOther.SyncDateTime;
-            SyncCommit = sOther.SyncCommit;
             Channels = sOther.Channels;
         }
 

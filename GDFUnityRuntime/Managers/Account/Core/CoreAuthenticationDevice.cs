@@ -60,8 +60,6 @@ namespace GDFUnity
                         Country = country
                     };
 
-                    Debug.LogWarning("Game consent is hard written to 1.0.0 !");
-
                     url = _manager.GenerateURL(country, "/api/v1/authentication/device/sign-up");
                     bearer = _manager.Post<string>(handler.Split(), url, signUpPayload);
                 }

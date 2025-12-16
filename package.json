@@ -1,6 +1,6 @@
 {
   "name": "com.game-data-forge.unity-core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "displayName": "GDF Unity Core",
   "description": "GDF core features implementation for Unity 3D.",
   "unity": "2022.3",

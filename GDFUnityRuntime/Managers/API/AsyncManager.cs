@@ -23,6 +23,23 @@ namespace GDFUnity
             _job.Dispose();
         }
 
+        public virtual void Kill()
+        {
+            if (_job == null) return;
+
+            if (!_job.IsDone)
+            {
+                _job.Cancel();
+                try
+                {
+                    _job.Wait();
+                }
+                catch {}
+            }
+
+            _job.Dispose();
+        }
+
         public Job JobLocker(Func<Job> body)
         {
             _job = GDFManagers.Lock(JobLokerType, body);

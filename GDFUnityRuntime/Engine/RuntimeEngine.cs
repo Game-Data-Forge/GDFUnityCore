@@ -1,6 +1,7 @@
 ﻿using GDFRuntime;
 using UnityEngine;
 using GDFFoundation;
+using GDFUnityRuntime;
 
 namespace GDFUnity
 {
@@ -54,6 +55,8 @@ namespace GDFUnity
         private RuntimeEngine()
         {
             _configuration = RuntimeConfigurationEngine.Instance.Load();
+
+            GDFLogger.SetWriter(new GDFLoggerUnityRuntime(GDFLogLevel.Trace));
 
             GDFManagers.Start();
 

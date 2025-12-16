@@ -17,19 +17,26 @@ namespace GDFUnity.Editor
             window.Focus();
         }
 
+        static public void DisplayConsent()
+        {
+            Display();
+            AccountWindow window = GetWindow<AccountWindow>();
+            window.menu.index = 1;
+        }
+
         internal AccountMenu menu;
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
+
             GDFEditor.Account.AccountChanged.onMainThread -= OnAccountChanged;
         }
 
         protected override void GUIReady()
         {
             TwoPaneSplitView main = new TwoPaneSplitView(0, 150, TwoPaneSplitViewOrientation.Horizontal);
-            menu = new AccountMenu(this);
+            menu = new AccountMenu();
             AccountView view = new AccountView(this);
 
             menu.BuildViews(this, view);

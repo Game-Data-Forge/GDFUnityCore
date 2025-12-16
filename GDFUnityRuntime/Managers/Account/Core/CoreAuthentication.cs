@@ -25,7 +25,7 @@ namespace GDFUnity
 
         public abstract Job SignOut();
         
-        internal void SignOutRunner(IJobHandler handler)
+        internal protected void SignOutRunner(IJobHandler handler)
         {
             if (!_manager.IsAuthenticated)
             {

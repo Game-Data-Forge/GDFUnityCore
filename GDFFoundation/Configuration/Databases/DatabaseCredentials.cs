@@ -82,6 +82,10 @@ namespace GDFFoundation
         ///     Gets or sets the table prefix for the database credentials.
         /// </summary>
         public string User { set; get; } = "User";
+        /// <summary>
+        /// The max size of the connection pool (min 5, by credentials/server).
+        /// </summary>
+        public int ConnectionPoolSize { set; get; } = 70;
 
         #endregion
 

@@ -44,10 +44,8 @@ namespace GDFUnity
                     Country = country
                 };
 
-                Debug.LogWarning("Game consent is hard written to 1.0.0 !");
-
                 string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-up");
-                _manager.Post<string>(handler.Split(), url, payload);
+                _manager.Post(handler.Split(), url, payload);
             }, "Email/password register"));
         }
 
@@ -67,7 +65,7 @@ namespace GDFUnity
                 };
 
                 string url = _manager.GenerateURL(country, "/api/v1/authentication/email-password/sign-lost");
-                _manager.Post<string>(handler.Split(), url, payload);
+                _manager.Post(handler.Split(), url, payload);
             }, "Email/password sign rescue"));
         }
 

@@ -1,4 +1,4 @@
-#if !UNITY_EDITOR && !UNITY_STANDALONE
+#if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID
 #region Copyright
 
 // Game-Data-Forge Solution

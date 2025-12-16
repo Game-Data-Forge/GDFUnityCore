@@ -50,7 +50,13 @@ namespace GDFUnity.Editor
         private List<IWindowView<AccountWindow>> _accountViews = null;
         private List<IWindowView<AccountWindow>> _views = null;
 
-        public AccountMenu(AccountWindow window)
+        internal int index
+        {
+            get => selectedIndex;
+            set => selectedIndex = value;
+        }
+
+        public AccountMenu()
         {
             Pool<Element> pool = new Pool<Element>();
 

@@ -11,7 +11,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-#if !UNITY_EDITOR && ! UNITY_STANDALONE
+#if !UNITY_EDITOR && ! UNITY_STANDALONE && !UNITY_ANDROID
 using System.Text.Json;
 #endif
 
@@ -97,7 +97,7 @@ namespace GDFFoundation
         /// <returns>An array of strings representing the serialized object split by lines.</returns>
         public static string[] SplitObjectSerializable(object item)
         {
-            #if !UNITY_EDITOR && ! UNITY_STANDALONE
+            #if !UNITY_EDITOR && ! UNITY_STANDALONE && !UNITY_ANDROID
             return JsonSerializer.Serialize(item, new JsonSerializerOptions { WriteIndented = true }).Replace(",\\\"", ",\n\\\"").Replace("{\\\"", "{\n\\\"").Replace("\\\"}", "\\\"\n}").Split('\n');
             //return JsonConvert.SerializeObject(sObject, Formatting.Indented).Replace(",\\\"", ",\n\\\"").Replace("{\\\"", "{\n\\\"").Replace("\\\"}", "\\\"\n}").Split('\n');
             #else
@@ -408,6 +408,16 @@ namespace GDFFoundation
         public static void Debug(string message, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerMethod = "", [CallerLineNumber] int callerLine = 0)
         {
             WriteLog(GDFLogLevel.Debug, GDFLogCategory.No, message, null, callerFile, callerMethod, callerLine);
+        }
+        
+        #if UNITY_EDITOR
+        [HideInCallstack]
+        #endif
+        public static string Line([CallerFilePath] string callerFile = "", [CallerMemberName] string callerMethod = "", [CallerLineNumber] int callerLine = 0)
+        {
+            string message = $"{callerFile} => method {callerMethod} =>line {callerLine}";
+            Debug($"--------> {message}", callerFile, callerMethod, callerLine);
+            return message;
         }
 
         #if UNITY_EDITOR

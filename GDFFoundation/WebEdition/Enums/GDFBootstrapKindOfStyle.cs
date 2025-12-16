@@ -16,6 +16,15 @@ using System;
 
 namespace GDFFoundation
 {
+    public enum GDFBootstrapMediaSize: int
+    {
+        sm,
+        md,
+        lg,
+        xl,
+        xxl
+    }
+    
     public enum GDFBootstrapKindOfAlign : int
     {
         Start,

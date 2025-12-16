@@ -82,6 +82,17 @@ namespace GDFUnity
         {
             return Send<RES>(handler, url, HttpMethod.Delete, headers, null);
         }
+        /// <summary>
+        ///     Send a HTTP DELETE request.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="url">The full URL of the request.</param>
+        /// <param name="headers">The headers of the request.</param>
+        /// <returns>The recieved data.</returns>
+        protected void Delete(IJobHandler handler, string url, Dictionary<string, string> headers = null)
+        {
+            Send(handler, url, HttpMethod.Delete, headers, null);
+        }
 
         /// <summary>
         ///     Send a HTTP GET request.
@@ -109,6 +120,18 @@ namespace GDFUnity
         {
             return Send<RES>(handler, url, HttpMethod.Post, headers, payload);
         }
+        /// <summary>
+        ///     Send a HTTP POST request.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="url">The full URL of the request.</param>
+        /// <param name="headers">The headers of the request.</param>
+        /// <param name="payload">The payload of the request.</param>
+        /// <returns>The recieved data.</returns>
+        protected void Post(IJobHandler handler, string url, Dictionary<string, string> headers = null, object payload = null)
+        {
+            Send(handler, url, HttpMethod.Post, headers, payload);
+        }
 
         /// <summary>
         ///     Send a HTTP PUT request.
@@ -123,7 +146,18 @@ namespace GDFUnity
         {
             return Send<RES>(handler, url, HttpMethod.Put, headers, payload);
         }
-
+        /// <summary>
+        ///     Send a HTTP PUT request.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="url">The full URL of the request.</param>
+        /// <param name="headers">The headers of the request.</param>
+        /// <param name="payload">The payload of the request.</param>
+        /// <returns>The recieved data.</returns>
+        protected void Put(IJobHandler handler, string url, Dictionary<string, string> headers = null, object payload = null)
+        {
+            Send(handler, url, HttpMethod.Put, headers, payload);
+        }
         /// <summary>
         ///     Read the body of the response.
         /// </summary>
@@ -164,6 +198,20 @@ namespace GDFUnity
 
             return ConvertResponse<RES>(response);
         }
+        /// <summary>
+        ///     Send a HTTP request.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="url">The full URL of the request.</param>
+        /// <param name="method">The HTTP method of the request.</param>
+        /// <param name="headers">The headers of the request.</param>
+        /// <param name="payload">The payload of the request.</param>
+        /// <returns>The recieved data.</returns>
+        protected void Send(IJobHandler handler, string url, HttpMethod method, Dictionary<string, string> headers, object payload)
+        {
+            SendRequest(handler, url, method, headers, payload);
+        }
+
 
         /// <summary>
         ///     Get the HTTP Response of the request.

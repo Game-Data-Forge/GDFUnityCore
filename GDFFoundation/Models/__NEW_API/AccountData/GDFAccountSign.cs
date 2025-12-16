@@ -105,12 +105,6 @@ namespace GDFFoundation
                 case GDFAccountSignType.Apple:
                     result = "G";
                 break;
-                case GDFAccountSignType.Microsoft:
-                    result = "H";
-                break;
-                case GDFAccountSignType.Twitter:
-                    result = "I";
-                break;
                 case GDFAccountSignType.LinkedIn:
                     result = "J";
                 break;

@@ -69,7 +69,7 @@ namespace GDFFoundation
 
         public static void WriteOptimizedConfigInConsole(bool fileByFile = false)
         {
-            string? env = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            string env = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             if (!string.IsNullOrEmpty(env))
             {
                 env = env + ".";

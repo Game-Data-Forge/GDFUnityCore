@@ -71,7 +71,7 @@ namespace GDFFoundation
             return new ApiErrorMessage
             {
                 StatusCode = (int)StatusCode,
-                InnerCode = ErrorCode,
+                InnerCode = Code,
                 Message = Message,
                 Help = Help,
             };

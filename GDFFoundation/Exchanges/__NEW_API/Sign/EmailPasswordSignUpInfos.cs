@@ -15,7 +15,7 @@ namespace GDFFoundation
     public class EmailPasswordSignUpInfos
     {
         #region Instance fields and properties
-
+        public Country Country { get; set; }
         public string Email { get; set; }
         public string EmailFrom { get; set; }
         public string Status { get; set; }

@@ -1,10 +1,11 @@
 using GDFEditor;
+using GDFRuntime;
 
 namespace GDFUnity.Editor
 {
     public class EditorAccountConsent : CoreAccountConsent<EditorAccountManager>, IEditorAccountManager.IEditorConsent
     {
-        public EditorAccountConsent(EditorAccountManager manager, RuntimeLicenseManager license) : base(manager, license)
+        public EditorAccountConsent(IRuntimeEngine engine, EditorAccountManager manager, RuntimeLicenseManager license) : base(engine, manager, license)
         {
             
         }

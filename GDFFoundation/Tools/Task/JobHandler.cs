@@ -152,17 +152,17 @@ namespace GDFFoundation
 
         private void CheckValidity(JobHandler handler)
         {
-                if (handler._step < handler._stepAmount - 1)
-                {
-                    GDFLogger.Warning(() => $"The job {_task.Name} is missing steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
-                }
+            if (handler._step < handler._stepAmount - 1)
+            {
+                GDFLogger.Warning(() => $"The job {_task.Name} is missing steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
+            }
 
-                if (handler._step > handler.StepAmount)
-                {
-                    GDFLogger.Warning(() => $"The job {_task.Name} has too many steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
-                }
+            if (handler._step > handler.StepAmount)
+            {
+                GDFLogger.Warning(() => $"The job {_task.Name} has too many steps !\nPlease, make sure every method in the job has the right amount of StepAmount and Step().");
+            }
 
-                _task.progress = handler._maxGlobal;
+            _task.progress = handler._maxGlobal;
         }
 
         #endregion

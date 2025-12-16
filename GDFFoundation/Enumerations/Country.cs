@@ -1,18 +1,14 @@
-#if !UNITY_EDITOR && !UNITY_STANDALONE
-using System.Text.Json.Serialization;
-#endif
 using System;
-using Newtonsoft.Json.Converters;
 
 namespace GDFFoundation
 {
-#if !UNITY_EDITOR && !UNITY_STANDALONE
-/// <summary>
-/// Represents a collection of countries.
-/// This enumeration can be used to specify countries within the application.
-/// </summary>
-[JsonConverter(typeof(CountryConverter))]
-#endif
+    #if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID
+    /// <summary>
+    /// Represents a collection of countries.
+    /// This enumeration can be used to specify countries within the application.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(CountryConverter))]
+    #endif
     [Newtonsoft.Json.JsonConverter(typeof(NewtonCountryConverter))]
     public enum Country : short
     {

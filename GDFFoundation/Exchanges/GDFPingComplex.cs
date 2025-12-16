@@ -34,7 +34,7 @@ namespace GDFFoundation
         /// <summary>
         ///     A class representing the timestamp property of the GDFPingComplex class.
         /// </summary>
-        public long Timestamp { set; get; }
+        public DateTime Time { set; get; }
 
         /// <summary>
         ///     Version of the GDFPingComplex class
@@ -52,7 +52,7 @@ namespace GDFFoundation
         {
             ServerStatus = GDFServerStatus.Inactive;
             AnswerText = ServerStatus.ToString();
-            Timestamp = GDFTimestamp.Timestamp();
+            Time = GDFDatetime.Now;
             Version =LibrariesWorkflow.GetForFoundation().Version();
         }
 
@@ -63,7 +63,7 @@ namespace GDFFoundation
         {
             ServerStatus = sServerStatus;
             AnswerText = ServerStatus.ToString();
-            Timestamp = GDFTimestamp.Timestamp();
+            Time = GDFDatetime.Now;
             Version = LibrariesWorkflow.GetForFoundation().Version();
         }
 

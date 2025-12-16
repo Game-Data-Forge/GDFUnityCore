@@ -18,9 +18,9 @@ namespace GDFFoundation
         Facebook = GDFAccountSignType.Facebook,
         Google = GDFAccountSignType.Google,
         Apple = GDFAccountSignType.Apple,
-        Microsoft = GDFAccountSignType.Microsoft,
-        Twitter = GDFAccountSignType.Twitter,
         LinkedIn = GDFAccountSignType.LinkedIn,
         Discord = GDFAccountSignType.Discord,
+        Custom = GDFAccountSignType.Custom,
+        GAR_FR = GDFAccountSignType.GAR_FR,
     }
 }

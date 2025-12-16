@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GDFFoundation;
 using GDFRuntime;
 
@@ -15,17 +14,21 @@ namespace GDFUnity
         private class Agreement : IRuntimeAccountManager.IRuntimeConsent.ILicenseAgreement
         {
             private CoreAccountConsent<T> _consent;
+            private Notification<bool> _licenseAgreementChanged;
 
-            public Agreement(CoreAccountConsent<T> consent)
+            public Notification<bool> LicenseAgreementChanged => _licenseAgreementChanged;
+
+            public Agreement(IRuntimeEngine engine, CoreAccountConsent<T> consent)
             {
                 _consent = consent;
+                _licenseAgreementChanged = new Notification<bool>(engine.ThreadManager);
             }
 
             public Job<bool> Get()
             {
                 return _consent._account.JobLocker(() => Job<bool>.Run(handler =>
                 {
-                    handler.StepAmount = 2;
+                    handler.StepAmount = 3;
 
                     // Refresh agreement
                     _consent._license.RefreshRunner(handler.Split());
@@ -34,6 +37,7 @@ namespace GDFUnity
                     GDFAccountConsent[] consents = _consent._account.Get<GDFAccountConsent[]>(handler.Split(), url);
                     if (consents == null || consents.Length == 0)
                     {
+                        _licenseAgreementChanged.Invoke(handler.Split(), false);
                         return false;
                     }
 
@@ -48,11 +52,14 @@ namespace GDFUnity
 
                     if (consent == null)
                     {
+                        _licenseAgreementChanged.Invoke(handler.Split(), false);
                         return false;
                     }
 
                     // Check agreement
-                    return _consent._license.Version == consent.ConsentVersion && consent.Consent;
+                    bool agreement = _consent._license.Version == consent.ConsentVersion && consent.Consent;
+                    _licenseAgreementChanged.Invoke(handler.Split(), agreement);
+                    return agreement;
                 }, "Get licence agreement"));
             }
 
@@ -60,6 +67,7 @@ namespace GDFUnity
             {
                 return _consent._account.JobLocker(() => Job.Run(handler =>
                 {
+                    handler.StepAmount = 2;
                     // Create consent
                     GDFAccountConsent consent = new GDFAccountConsent()
                     {
@@ -75,7 +83,9 @@ namespace GDFUnity
 
                     // Save consent
                     string url = _consent._account.GenerateURL(_consent._account.storage.Country, $"/api/v1/accounts/{_consent._account.Reference}/consents");
-                    _consent._account.Post<int>(handler, url, consent);
+                    _consent._account.Post(handler.Split(), url, consent);
+
+                    _licenseAgreementChanged.Invoke(handler.Split(), agreeToLicense);
 
                 }, "Set licence agreement"));
             }
@@ -98,12 +108,12 @@ namespace GDFUnity
             }
         }
 
-        public CoreAccountConsent(T account, RuntimeLicenseManager license)
+        public CoreAccountConsent(IRuntimeEngine engine, T account, RuntimeLicenseManager license)
         {
             _account = account;
             _license = license;
 
-            _licenseAgreement = new Agreement(this);
+            _licenseAgreement = new Agreement(engine, this);
         }
     }
 }

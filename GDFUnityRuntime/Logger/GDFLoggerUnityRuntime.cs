@@ -3,7 +3,7 @@ using GDFFoundation;
 using System;
 using UnityEngine;
 
-namespace GDFUnityRuntime
+namespace GDFUnity
 {
     [Serializable]
     public class GDFLoggerUnityRuntime : IGDFLogger

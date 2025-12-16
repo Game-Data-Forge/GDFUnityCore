@@ -53,6 +53,7 @@ namespace GDFRuntime
         {
             public interface ILicenseAgreement
             {
+                public Notification<bool> LicenseAgreementChanged { get; }
                 public Job Set(bool agreeToLicense);
                 public Job<bool> Get();
             }

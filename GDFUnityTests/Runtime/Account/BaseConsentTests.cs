@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 using GDFFoundation;
 using GDFUnity;
 using NUnit.Framework;
@@ -45,6 +46,8 @@ namespace Account
         [UnityTest]
         public IEnumerator CannotSignUpWithoutLicense()
         {
+            LogAssert.Expect(UnityEngine.LogType.Exception, new Regex(".*"));
+            
             licenseAgreement = true;
 
             yield return WaitJob(Connect(), JobState.Failure);
@@ -65,6 +68,8 @@ namespace Account
         [UnityTest]
         public IEnumerator CannotSignUpWithoutAgreeingToLicense()
         {
+            LogAssert.Expect(UnityEngine.LogType.Exception, new Regex(".*"));
+
             yield return (UnityJob)GDF.License.Refresh();
 
             licenseAgreement = false;

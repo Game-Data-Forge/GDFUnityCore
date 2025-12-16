@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // Game-Data-Forge Solution
 // Written by CONTART Jean-François & BOULOGNE Quentin
@@ -10,6 +10,7 @@
 #region
 
 using System;
+using System.Text;
 
 #endregion
 
@@ -22,16 +23,43 @@ namespace GDFFoundation
     {
         #region Constants
 
-        /// <summary>
-        ///     Represents a custom exception that can be thrown in the GDFFoundation namespace.
-        /// </summary>
-        const string _FORMAT = "{0}-{1}";
-
+        const string _FORMAT = "{0}: {1}";
+        const string _CODE_SEPARATOR = "{0}-{1}";
         const string _NUMBER_FORMAT = "######";
 
         #endregion
 
         #region Static methods
+
+        static private string Generate(string category, int number, string message)
+        {
+            return Generate(GenerateCode(category, number), message);
+        }
+
+        static private string Generate(string code, string message)
+        {
+            return string.Format(_FORMAT, code, message);
+        }
+
+        static private string GenerateCode(string category, int number)
+        {
+            return $"{category}{_CODE_SEPARATOR}{number.ToString(_NUMBER_FORMAT)}";
+        }
+
+        static private void SplitCode(string code, out string category, out int number)
+        {
+            try
+            {
+                string[] split = code.Split(_CODE_SEPARATOR);
+                category = split[0];
+                number = int.Parse(split[1]);
+            }
+            catch
+            {
+                category = "ERR";
+                number = 500;
+            }
+        }
 
         static public bool operator ==(GDFException e1, GDFException e2)
         {
@@ -52,76 +80,51 @@ namespace GDFFoundation
 
         #region Instance fields and properties
 
-        public string ErrorCategory;
-
-        /// <summary>
-        ///     Represents an error code associated with an exception.
-        /// </summary>
-        public string ErrorCode;
-
-        public int ErrorNumber;
+        public string Category;
+        public int Number;
         public string Help;
+        public string Code;
 
         #endregion
 
         #region Instance constructors and destructors
 
-        public GDFException()
-            : base($"This is a {nameof(GDFException)}")
+        public GDFException() : this("ERR", 500, "Internal server error !")
         {
-            ErrorCategory = "ERR";
-            ErrorNumber = 500;
-            Help = "help";
-            ErrorCode = string.Format(_FORMAT, ErrorCategory, ErrorNumber.ToString(_NUMBER_FORMAT));
+
         }
 
         /// <summary>
         ///     Represents a custom exception that occurs in the GDFFoundation namespace.
         ///     Inherits from the Exception class.
         /// </summary>
-        public GDFException(string errorCategory, int errorNumber, string message, string help = "")
-            : base(message)
+        public GDFException(string category, int number, string message, string help = "")
+            : this(category, number, message, null, help)
         {
-            ErrorCategory = errorCategory;
-            ErrorNumber = errorNumber;
-            Help = help;
-            ErrorCode = string.Format(_FORMAT, errorCategory, errorNumber.ToString(_NUMBER_FORMAT));
+
         }
 
-        /// Represents a custom exception class that inherits from the Exception class.
-        /// /
-        public GDFException(string errorCode, string message, string help = "")
-            : base(message)
+        public GDFException(string code, string message, string help = "")
+            : this(code, message, null, help)
         {
-            ErrorCode = errorCode;
-            Help = help;
+
         }
 
-        /// GDFException.cs
-        /// /
-        public GDFException(string errorCategory, int errorNumber, string message, Exception innerException, string help = "")
-            : base(message, innerException)
+        public GDFException(string category, int number, string message, Exception innerException, string help = "")
+            : base(Generate(category, number, message), innerException)
         {
-            ErrorCategory = errorCategory;
-            ErrorNumber = errorNumber;
-            ErrorCode = string.Format(_FORMAT, errorCategory, errorNumber.ToString(_NUMBER_FORMAT));
+            Code = GenerateCode(category, number);
+            Category = category;
+            Number = number;
             Help = help;
         }
 
-        /// <summary>
-        ///     The GDFException class represents a custom exception that can be thrown in the GDFFoundation.
-        /// </summary>
-        public GDFException(string errorCode, string message, Exception innerException, string help = "")
-            : base(message, innerException)
+        public GDFException(string code, string message, Exception innerException, string help = "")
+            : base(Generate(code, message), innerException)
         {
-            ErrorCode = errorCode;
+            Code = code;
+            SplitCode(code, out Category, out Number);
             Help = help;
-            if (innerException == null)
-            {
-                return;
-            }
-
-            GDFLogger.Error(innerException);
         }
 
         #endregion
@@ -137,7 +140,7 @@ namespace GDFFoundation
 
             if (obj is string)
             {
-                return ErrorCode.Equals(obj);
+                return Code.Equals(obj);
             }
 
             if (obj is GDFException other)
@@ -150,7 +153,7 @@ namespace GDFFoundation
 
         public override int GetHashCode()
         {
-            return ErrorCode.GetHashCode();
+            return Code.GetHashCode();
         }
 
         #region From interface IEquatable<GDFException>
@@ -162,7 +165,7 @@ namespace GDFFoundation
                 return false;
             }
 
-            return ErrorCode == other.ErrorCode;
+            return Code == other.Code;
         }
 
         #endregion

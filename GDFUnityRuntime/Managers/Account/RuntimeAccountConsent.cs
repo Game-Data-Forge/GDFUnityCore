@@ -1,8 +1,10 @@
+using GDFRuntime;
+
 namespace GDFUnity
 {
     public class RuntimeAccountConsent : CoreAccountConsent<RuntimeAccountManager>
     {
-        public RuntimeAccountConsent(RuntimeAccountManager manager, RuntimeLicenseManager license) : base(manager, license)
+        public RuntimeAccountConsent(IRuntimeEngine engine, RuntimeAccountManager manager, RuntimeLicenseManager license) : base(engine, manager, license)
         {
             
         }
