@@ -23,7 +23,7 @@ namespace GDFUnity.Editor
             _logout.text = "Sign out";
             _logout.tooltip = "Sign out from the account.";
 
-            _migrate = new Button(Migrate);
+            _migrate = new Button(MigrateOnline);
             _migrate.text = "Migrate local data";
             _migrate.tooltip = "Migrates the local account data into the current account.";
 
@@ -78,7 +78,7 @@ namespace GDFUnity.Editor
             _window.MainView.AddCriticalLoader(GDF.Player.Purge());
         }
         
-        private void Migrate()
+        private void MigrateOnline()
         {
             if (!EditorUtility.DisplayDialog("Migrate local data", "You are about to migrate all local account data into the current account. This will erase all disk data of the current account to replace them with the local account's data."+
                 "\nThis operation cannot be reversed. Do you wish to proceed?", "Yes", "No"))
@@ -86,7 +86,7 @@ namespace GDFUnity.Editor
                 return;
             }
             
-            _window.MainView.AddCriticalLoader(GDF.Player.MigrateLocalData());
+            _window.MainView.AddCriticalLoader(GDF.Player.MigrateOnline());
         }
     }
 }

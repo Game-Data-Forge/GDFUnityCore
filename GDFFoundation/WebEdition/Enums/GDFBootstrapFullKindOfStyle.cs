@@ -45,7 +45,6 @@ namespace GDFFoundation
         /// It represents the secondary style for the Bootstrap framework.
         /// </remarks>
         Secondary,
-
         /// <summary>
         /// Represents the outline secondary style in the context of <see cref="GDFBootstrapFullKindOfStyle"/>.
         /// </summary>
@@ -54,6 +53,10 @@ namespace GDFFoundation
         /// defined by the <see cref="GDFBootstrapFullKindOfStyle"/> enumeration within its intended scope.
         /// </remarks>
         OutlineSecondary,
+        
+        Tertiary,
+
+        OutlineTertiary,
 
         /// <summary>
         /// Represents a successful style for the Bootstrap framework.

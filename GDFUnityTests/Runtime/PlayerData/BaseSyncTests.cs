@@ -20,34 +20,52 @@ namespace PlayerData
         public IEnumerator KnowsIfThereAreDataToSync()
         {
             string reference = nameof(KnowsIfThereAreDataToSync);
-            string value = "value 1";
+            string value1 = "value 1";
+            string value2 = "value 2";
 
             GDFTestPlayerData data = new GDFTestPlayerData();
-            data.TestString = value;
+            data.TestString = value1;
 
-            Assert.AreEqual(false, GDF.Player.HasDataToSync);
+            Assert.IsFalse(GDF.Player.HasDataToSync);
+            Assert.AreEqual(GDF.Player.DataToSyncAmount, 0);
 
             GDF.Player.Add(reference, data);
 
-            Assert.AreEqual(false, GDF.Player.HasDataToSync);
+            Assert.IsFalse(GDF.Player.HasDataToSync);
 
             UnityJob task = GDF.Player.Save();
             yield return WaitJob(task);
-            
-            Assert.AreEqual(true, GDF.Player.HasDataToSync);
+
+            Assert.IsTrue(GDF.Player.HasDataToSync);
+            Assert.AreEqual(GDF.Player.DataToSyncAmount, 1);
 
             GDF.Player.Delete(data);
 
             task = GDF.Player.Save();
             yield return WaitJob(task);
             
-            Assert.AreEqual(true, GDF.Player.HasDataToSync);
+            Assert.IsTrue(GDF.Player.HasDataToSync);
+            Assert.AreEqual(GDF.Player.DataToSyncAmount, 1);
+
+            task = GDF.Player.LoadGameSave(1);
+            yield return WaitJob(task);
+
+            data = new GDFTestPlayerData();
+            data.TestString = value2;
+            
+            GDF.Player.Add(1, reference, data);
+            
+            task = GDF.Player.Save();
+            yield return WaitJob(task);
+            
+            Assert.IsTrue(GDF.Player.HasDataToSync);
+            Assert.AreEqual(GDF.Player.DataToSyncAmount, 2);
         }
 
         [UnityTest]
-        public IEnumerator KeepDataToSyncEvenAfterReloading()
+        public IEnumerator DataToSyncArePersistedOnSave()
         {
-            string reference = nameof(KeepDataToSyncEvenAfterReloading);
+            string reference = nameof(DataToSyncArePersistedOnSave);
 
             string value1 = "value 1";
             string value2 = "value 2";
@@ -80,7 +98,8 @@ namespace PlayerData
             
             Assert.IsNotNull(data);
             Assert.AreEqual(data.TestString, value1);
-            Assert.AreEqual(true, GDF.Player.HasDataToSync);
+            Assert.IsTrue(GDF.Player.HasDataToSync);
+            Assert.AreEqual(GDF.Player.DataToSyncAmount, 1);
         }
 
         [UnityTest]
@@ -106,11 +125,11 @@ namespace PlayerData
             task = GDF.Player.Purge();
             yield return WaitJob(task);
             
-            task = GDF.Player.LoadCommonGameSave();
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(task);
 
             list = GDF.Player.Get<GDFTestPlayerData>();
-            Assert.AreEqual(0, list.Count);
+            Assert.IsEmpty(list);
 
             task = GDF.Player.Sync();
             yield return WaitJob(task);
@@ -120,7 +139,7 @@ namespace PlayerData
         }
 
         [UnityTest]
-        public IEnumerator SyncDoesNotKeepDataToSync()
+        public IEnumerator SyncClearsSyncQueue()
         {
             int count = 39;
             
@@ -133,7 +152,7 @@ namespace PlayerData
                 GDF.Player.Add(data);
             }
             
-            Assert.IsTrue(GDF.Player.HasDataToSave);
+            Assert.IsTrue(GDF.Player.HasDataToSave());
             Assert.IsFalse(GDF.Player.HasDataToSync);
 
             UnityJob task = GDF.Player.Save();
@@ -153,7 +172,7 @@ namespace PlayerData
                 Assert.IsFalse(GDF.Player.HasDataToSync);
             }
             
-            task = GDF.Player.LoadCommonGameSave();
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(task);
 
             if (GDF.Account.IsLocal)
@@ -167,7 +186,7 @@ namespace PlayerData
         }
 
         [UnityTest]
-        public IEnumerator CanSyncDataAutoSaves()
+        public IEnumerator SyncDataAlsoAutoSaves()
         {
             int count = 39;
 
@@ -186,7 +205,7 @@ namespace PlayerData
             UnityJob task = GDF.Player.Sync();
             yield return WaitJob(task);
             
-            task = GDF.Player.LoadCommonGameSave();
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(task);
 
             list = GDF.Player.Get<GDFTestPlayerData>();
@@ -267,6 +286,9 @@ namespace PlayerData
             yield return Connect();
 
             task = GDF.Player.Purge();
+            yield return task;
+
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return task;
         }
 

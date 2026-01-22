@@ -17,6 +17,7 @@ namespace GDFUnity
                 _reference,
                 _tableType.GetProperty(nameof(GDFPlayerDataStorage.Json)),
                 _tableType.GetProperty(nameof(GDFPlayerDataStorage.Channels)),
+                _tableType.GetProperty(nameof(GDFPlayerDataStorage.ClassName)),
                 _tableType.GetProperty(nameof(GDFPlayerDataStorage.DataVersion)),
                 _tableType.GetProperty(nameof(GDFPlayerDataStorage.Creation)),
                 _tableType.GetProperty(nameof(GDFPlayerDataStorage.Modification)),

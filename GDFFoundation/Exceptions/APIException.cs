@@ -27,7 +27,7 @@ namespace GDFFoundation
         #region Instance constructors and destructors
 
         public APIException()
-            : base("API", 500, $"This is a {nameof(GDFException)}")
+            : base("API", 500, $"Internal server error !")
         {
             StatusCode = HttpStatusCode.InternalServerError;
         }

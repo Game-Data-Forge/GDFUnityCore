@@ -53,6 +53,11 @@ namespace GDFEditor
 
             }
 
+            public interface IEditorOAuth : IRuntimeOAuth
+            {
+                
+            }
+
             /// <summary>
             /// Defines the interface for managing the last session authentication mechanism in the editor environment.
             /// Inherits from <see cref="IRuntimeAccountManager.IRuntimeAuthentication.IRuntimeLastSession"/>.
@@ -97,6 +102,11 @@ namespace GDFEditor
             /// instance used for handling email/password operations such as login, registration, and account recovery.
             /// </returns>
             public new IEditorEmailPassword EmailPassword { get; }
+            public new IEditorOAuth Apple { get; }
+            public new IEditorOAuth Discord { get; }
+            public new IEditorOAuth Facebook { get; }
+            public new IEditorOAuth Google { get; }
+            public new IEditorOAuth LinkedIn { get; }
 
             /// <summary>
             /// Gets the last session authentication mechanism specific to the editor context, allowing for re-sign-in

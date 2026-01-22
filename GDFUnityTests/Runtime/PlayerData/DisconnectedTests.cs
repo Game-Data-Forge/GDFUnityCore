@@ -18,10 +18,16 @@ namespace PlayerData
         public void CannotAccessFrameworkIfNotConnected()
         {
             Assert.Throws<GDFException> (() => {
-                byte gameSave = GDF.Player.GameSave;
+                byte gameSave = GDF.Player.ActiveGameSave;
             });
             Assert.Throws<GDFException> (() => {
                 GDF.Player.LoadGameSave(0);
+            });
+            Assert.Throws<GDFException> (() => {
+                GDF.Player.UnloadGameSave(0);
+            });
+            Assert.Throws<GDFException> (() => {
+                GDF.Player.DeleteGameSave(0);
             });
             Assert.Throws<GDFException> (() => {
                 GDFPlayerData data = GDF.Player.Get("test");

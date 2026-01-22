@@ -16,22 +16,6 @@ using System;
 
 namespace GDFFoundation
 {
-    public enum GDFBootstrapMediaSize: int
-    {
-        sm,
-        md,
-        lg,
-        xl,
-        xxl
-    }
-    
-    public enum GDFBootstrapKindOfAlign : int
-    {
-        Start,
-        Middle,
-        End,
-    }
-
     /// <summary>
     ///     Represents the kind of bootstrap style for HTML elements.
     /// </summary>

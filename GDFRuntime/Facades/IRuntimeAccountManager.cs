@@ -22,6 +22,10 @@ namespace GDFRuntime
                 public Job Login(Country country, string email, string password);
                 public Job Rescue(Country country, string email);
             }
+            public interface IRuntimeOAuth
+            {
+                public Job Login(Country country, string clientId, string token, bool agreeToLicense);
+            }
             public interface IRuntimeLastSession
             {
                 public bool IsAvailable { get; }
@@ -31,6 +35,11 @@ namespace GDFRuntime
             public IRuntimeLocal Local { get; }
             public IRuntimeDevice Device { get; }
             public IRuntimeEmailPassword EmailPassword { get; }
+            public IRuntimeOAuth Apple { get; }
+            public IRuntimeOAuth Discord { get; }
+            public IRuntimeOAuth Facebook { get; }
+            public IRuntimeOAuth Google { get; }
+            public IRuntimeOAuth LinkedIn { get; }
             public IRuntimeLastSession LastSession { get; }
 
             public Job SignOut();

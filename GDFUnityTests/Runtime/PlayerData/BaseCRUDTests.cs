@@ -20,13 +20,20 @@ namespace PlayerData
         }
 
         [Test]
-        public void CannotAddDeleteed()
+        public void CannotAddDeleted()
         {
             GDFPlayerData data = new GDFTestPlayerData();
             
             data.Trashed = true;
 
             Assert.Throws<GDFException> (() => GDF.Player.Add(data));
+        }
+
+        [Test]
+        public void CannotAddOnInvalidGameSave()
+        {
+            GDFPlayerData data = new GDFTestPlayerData();
+            Assert.Throws<GDFException> (() => GDF.Player.Add(1, data));
         }
 
         [Test]
@@ -44,7 +51,7 @@ namespace PlayerData
         {
             string reference = nameof(CanAdd);
             
-            GDFPlayerData data = new GDFTestPlayerData();
+            GDFTestPlayerData data = new GDFTestPlayerData();
 
             Assert.IsNull(GDF.Player.Get(reference));
 
@@ -68,7 +75,7 @@ namespace PlayerData
             Assert.IsNotNull(GDF.Player.Get(reference));
             Assert.AreEqual(data, GDF.Player.Get(reference));
             Assert.AreEqual(data.Reference, reference);
-            Assert.AreEqual(data.GameSave, GDF.Player.GameSave);
+            Assert.AreEqual(data.GameSave, GDF.Player.ActiveGameSave);
             Assert.AreEqual(data.Account, GDF.Account.Reference);
         }
 
@@ -108,6 +115,11 @@ namespace PlayerData
             
             Assert.IsNotNull(data);
             Assert.AreEqual(data.Reference, reference);
+
+            data = GDF.Player.Get<GDFTestPlayerData>(reference);
+            
+            Assert.IsNotNull(data);
+            Assert.AreEqual(data.Reference, reference);
         }
 
         [Test]
@@ -121,12 +133,19 @@ namespace PlayerData
             GDFPlayerData data2 = new GDFTestPlayerData();
             GDF.Player.Add(reference + "_2", data2);
 
-            List<GDFTestPlayerData> list = GDF.Player.Get<GDFTestPlayerData>();
+            List<GDFTestPlayerData> list0 = GDF.Player.Get<GDFTestPlayerData>();
             
-            Assert.IsNotNull(list);
-            Assert.AreEqual(list.Count, 2);
-            Assert.AreEqual(list[0].Reference, data1.Reference);
-            Assert.AreEqual(list[1].Reference, data2.Reference);
+            Assert.IsNotNull(list0);
+            Assert.AreEqual(list0.Count, 2);
+            Assert.AreEqual(list0[0].Reference, data1.Reference);
+            Assert.AreEqual(list0[1].Reference, data2.Reference);
+
+            List<GDFPlayerData> list1 = GDF.Player.Get(typeof(GDFTestPlayerData));
+            
+            Assert.IsNotNull(list1);
+            Assert.AreEqual(list1.Count, 2);
+            Assert.AreEqual(list1[0].Reference, data1.Reference);
+            Assert.AreEqual(list1[1].Reference, data2.Reference);
         }
 
         [Test]
@@ -144,6 +163,12 @@ namespace PlayerData
             Assert.IsNotNull(fromParent);
             Assert.AreEqual(fromParent.Reference, reference);
             Assert.AreEqual(fromParent.ChildInt, data.ChildInt);
+
+            fromParent = GDF.Player.Get(typeof(GDFTestPlayerData), reference) as GDFTestChildPlayerData;
+            
+            Assert.IsNotNull(fromParent);
+            Assert.AreEqual(fromParent.Reference, reference);
+            Assert.AreEqual(fromParent.ChildInt, data.ChildInt);
         }
         
         [Test]
@@ -157,12 +182,25 @@ namespace PlayerData
             data.ChildInt = 2;
             GDF.Player.Add(data);
 
-            List<GDFTestPlayerData> list = GDF.Player.Get<GDFTestPlayerData>();
+            List<GDFTestPlayerData> list0 = GDF.Player.Get<GDFTestPlayerData>();
             
-            Assert.IsNotNull(list == null);
-            Assert.AreEqual(list.Count, 2);
+            Assert.IsNotNull(list0);
+            Assert.AreEqual(list0.Count, 2);
             
-            foreach (GDFTestPlayerData item in list)
+            foreach (GDFTestPlayerData item in list0)
+            {
+                GDFTestChildPlayerData fromParent = item as GDFTestChildPlayerData;
+            
+                Assert.IsNotNull(fromParent);
+                Assert.AreNotEqual(fromParent.ChildInt, 0);
+            }
+
+            List<GDFPlayerData> list1 = GDF.Player.Get(typeof(GDFTestPlayerData));
+            
+            Assert.IsNotNull(list1);
+            Assert.AreEqual(list1.Count, 2);
+            
+            foreach (GDFTestPlayerData item in list1)
             {
                 GDFTestChildPlayerData fromParent = item as GDFTestChildPlayerData;
             
@@ -187,6 +225,20 @@ namespace PlayerData
         public void CannotSetNull()
         {
             Assert.Throws<ArgumentNullException> (() => GDF.Player.AddToSaveQueue(null));
+        }
+
+        [UnityTest]
+        public IEnumerator CannotSetOnInvalidGameSave()
+        {
+            CanAdd();
+
+            string reference = nameof(CanAdd);
+            GDFTestPlayerData data = GDF.Player.Get<GDFTestPlayerData>(reference);
+
+            Job task = GDF.Player.UnloadGameSave(GDF.Player.ActiveGameSave);
+            yield return WaitJob(task);
+
+            Assert.Throws<GDFException> (() => GDF.Player.AddToSaveQueue(data));
         }
 
         [Test]
@@ -263,13 +315,14 @@ namespace PlayerData
             
             GDF.Player.Delete(data);
 
+            Assert.IsTrue(data.Trashed);
             Assert.IsNull(GDF.Player.Get(reference));
         }
         
         [Test]
-        public void CanSetToDeleteed()
+        public void CanSetTrashFlag()
         {
-            string reference = nameof(CanSetToDeleteed);
+            string reference = nameof(CanSetTrashFlag);
             string value = "value 1";
             GDFTestPlayerData data = new GDFTestPlayerData();
             data.TestString = value;
@@ -297,53 +350,53 @@ namespace PlayerData
             GDFTestPlayerData data = new GDFTestPlayerData();
             data.TestString = value;
 
-            DataStateInfo state = GDF.Player.GetState(data);
+            DataState state = GDF.Player.GetDataState(data);
 
-            Assert.AreEqual(DataState.Unattached, state.state);
+            Assert.AreEqual(DataState.State.Unknown, state.state);
 
             GDF.Player.Add(reference, data);
             
-            state = GDF.Player.GetState(data);
+            state = GDF.Player.GetDataState(data);
 
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Attached));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Savable));
-            Assert.AreEqual(false, state.state.HasFlag(DataState.Syncable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Cached));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Savable));
+            Assert.IsFalse(state.state.HasFlag(DataState.State.Syncable));
 
             UnityJob task = GDF.Player.Save();
             yield return WaitJob(task);
             
-            state = GDF.Player.GetState(data);
+            state = GDF.Player.GetDataState(data);
             
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Attached));
-            Assert.AreEqual(false, state.state.HasFlag(DataState.Savable));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Syncable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Cached));
+            Assert.IsFalse(state.state.HasFlag(DataState.State.Savable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Syncable));
 
             GDF.Player.AddToSaveQueue(data);
             
-            state = GDF.Player.GetState(data);
+            state = GDF.Player.GetDataState(data);
             
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Attached));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Savable));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Syncable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Cached));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Savable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Syncable));
 
-            task = GDF.Player.LoadCommonGameSave();
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(task);
 
             data = GDF.Player.Get<GDFTestPlayerData>(reference);
             
-            state = GDF.Player.GetState(data);
+            state = GDF.Player.GetDataState(data);
             
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Attached));
-            Assert.AreEqual(false, state.state.HasFlag(DataState.Savable));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Syncable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Cached));
+            Assert.IsFalse(state.state.HasFlag(DataState.State.Savable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Syncable));
 
             GDF.Player.Delete(data);
             
-            state = GDF.Player.GetState(data);
+            state = GDF.Player.GetDataState(data);
             
-            Assert.AreEqual(false, state.state.HasFlag(DataState.Attached));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Savable));
-            Assert.AreEqual(true, state.state.HasFlag(DataState.Syncable));
+            Assert.IsFalse(state.state.HasFlag(DataState.State.Cached));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Savable));
+            Assert.IsTrue(state.state.HasFlag(DataState.State.Syncable));
         }
 
         [UnitySetUp]
@@ -355,6 +408,9 @@ namespace PlayerData
             yield return Connect();
 
             task = GDF.Player.Purge();
+            yield return task;
+
+            task = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return task;
         }
 

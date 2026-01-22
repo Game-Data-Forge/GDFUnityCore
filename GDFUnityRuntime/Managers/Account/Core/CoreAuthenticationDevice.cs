@@ -1,7 +1,5 @@
-using System;
 using GDFFoundation;
 using GDFRuntime;
-using UnityEngine;
 using static GDFUnity.CoreAccountManager;
 
 namespace GDFUnity

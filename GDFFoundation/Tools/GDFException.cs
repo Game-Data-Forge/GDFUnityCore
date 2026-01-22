@@ -24,7 +24,7 @@ namespace GDFFoundation
         #region Constants
 
         const string _FORMAT = "{0}: {1}";
-        const string _CODE_SEPARATOR = "{0}-{1}";
+        const string _CODE_SEPARATOR = "-";
         const string _NUMBER_FORMAT = "######";
 
         #endregion

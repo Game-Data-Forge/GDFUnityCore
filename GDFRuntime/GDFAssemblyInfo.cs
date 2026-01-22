@@ -16,19 +16,19 @@ namespace GDFRuntime
             /// Retrieves the Configuration used to build this DLL.
             /// </summary>
             /// <returns>The configuration used as a <see cref="string"/>.</returns>
-            public override string Configuration() => "Debug";
+            public override string Configuration() => "Release";
         
             /// <summary>
             /// Retrieves the full Git commit hash.
             /// </summary>
             /// <returns>The full commit hash as a <see cref="string"/>.</returns>
-            public override string GitCommit() => "d27d72d1a3afa631f4b99ec9e4cfe727a256629c";
+            public override string GitCommit() => "442e44ce5c759798b6dcda63b9c8cc27aa3c4f76";
             
             /// <summary>
             /// Retrieves the short Git commit hash.
             /// </summary>
             /// <returns>The short commit hash as a <see cref="string"/>.</returns>
-            public override string GitShortCommit() => "d27d72d1a";
+            public override string GitShortCommit() => "442e44ce5";
 
             /// <summary>
             /// Retrieves the name of the Git branch for this assembly.
@@ -54,7 +54,7 @@ namespace GDFRuntime
             /// Retrieves the date of the last Git commit.
             /// </summary>
             /// <returns>The date of the last Git commit as a <see cref="string"/>.</returns>
-            public override string GitLastCommitDate() => "2025-12-16T14:27:12+01:00";
+            public override string GitLastCommitDate() => "2026-01-20T18:22:08+01:00";
 
             /// <summary>
             /// Indicates whether the current state of the Git repository has uncommitted changes.
@@ -90,13 +90,13 @@ namespace GDFRuntime
             /// Retrieves the copyright information for the assembly.
             /// </summary>
             /// <returns>The copyright information as a <see cref="string"/>.</returns>
-            public override string Copyright() => "Copyright © idéMobi 2025";
+            public override string Copyright() => "Copyright © idéMobi 2026";
 
             /// <summary>
             /// Retrieves the build date of the assembly.
             /// </summary>
             /// <returns>The build date as a <see cref="string"/>.</returns>
-            public override string BuildDate() => "2025-12-16 14:24:26-dirty";
+            public override string BuildDate() => "2026-01-22 08:58:44-dirty";
 
             /// <summary>
             /// Determines whether the NuGet SDK is used for the current assembly information setup.
@@ -108,19 +108,19 @@ namespace GDFRuntime
             // /// Retrieves the version information of the assembly.
             // /// </summary>
             // /// <returns>The version string of the assembly as a <see cref="string"/>.</returns>
-            //public override string Version() => "2025.1216.1424-dirty";
+            //public override string Version() => "2026.122.0858-dirty";
 
             // /// <summary>
             // /// Retrieves the file version information of the assembly.
             // /// </summary>
             // /// <returns>The file version of the assembly as a <see cref="string"/>.</returns>
-            //public override string FileVersion() => "2025.1216.1424-dirty";
+            //public override string FileVersion() => "2026.122.0858-dirty";
 
             /// <summary>
             /// Gets the target .NET version of the project.
             /// </summary>
             /// <returns>The target .NET version as a <see cref="string"/>.</returns>
-            public override string DotNet() => "net9.0";
+            public override string DotNet() => "net10.0";
        
         }
 }

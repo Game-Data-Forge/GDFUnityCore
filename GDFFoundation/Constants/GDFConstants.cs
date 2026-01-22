@@ -22,9 +22,13 @@ namespace GDFFoundation
     public abstract class GDFConstants
     {
         #region Constants
-        
+
+        public const int JwtValidIfExpiresInSeconds = 60 * 60 * 24 * 7; // => one week 
+        public const int SessionDurationInSeconds = 60 * 60 * 24 * 366; // => one year
+        public const int WebSessionDurationInSeconds = 60 * 60; // => one hour
         public const string K_CONSENT_VERSION = "1.0.0";
         public const string K_CONSENT_NAME = "Game-Data-Forge";
+        
         //TODO change this URL 
         public const string K_CONSENT_URL = "https://www.game-data-forge.com/url_de_licence_a_modifier";
         

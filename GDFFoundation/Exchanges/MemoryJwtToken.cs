@@ -34,6 +34,7 @@ namespace GDFFoundation
         public ConsentOptions AdditionalOptions { get; set; }
         public string ConsentVersion { get; set; }
         public string ConsentName { get; set; }
+        public DateTime Expires { get; set; }
 
         #endregion
 
@@ -52,6 +53,7 @@ namespace GDFFoundation
             ConsentVersion = "1.0.0";
             ConsentName = string.Empty;
             LanguageIso = "en-US";
+            Expires = GDFDatetime.Now.AddSeconds(GDFConstants.SessionDurationInSeconds);
         }
 
         #endregion

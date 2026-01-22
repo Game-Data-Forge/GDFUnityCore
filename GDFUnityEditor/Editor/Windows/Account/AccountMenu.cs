@@ -88,6 +88,11 @@ namespace GDFUnity.Editor
                 new LocalView(view),
                 new DeviceView(view),
                 new EmailPasswordView(view),
+                new AppleView(view),
+                new DiscordView(view),
+                new FacebookView(view),
+                new GoogleView(view),
+                new LinkedInView(view),
                 new LastSessionView(view)
             };
         }

@@ -20,10 +20,6 @@ namespace GDFFoundation
         {
             Infos.Style = GDFWebEditionStyle.Hidden;
             Infos.Icon = string.Empty;
-            Infos.Description = string.Empty;
-            Infos.UseAsSortBy = false;
-            Infos.UseAsColumn = false;
-            Infos.IsPrimaryColumn = false;
         }
 
         #endregion

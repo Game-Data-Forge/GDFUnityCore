@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using GDFFoundation;
 using GDFUnity;
 using NUnit.Framework;
@@ -13,44 +12,83 @@ namespace PlayerData
         Country country = Country.FR;
 
         [UnityTest]
-        public IEnumerator CanMigrateLocalAccount()
+        public IEnumerator CannotMigrateFromLocalAccount()
         {
-            string ref1 = nameof(CanMigrateLocalAccount) + "1";
-            string ref2 = nameof(CanMigrateLocalAccount) + "2";
+            string reference = nameof(CannotMigrateFromLocalAccount);
+
+            UnityJob job = GDF.Account.Authentication.Local.Login();
+            yield return WaitJob(job);
 
             GDFTestPlayerData data = new GDFTestPlayerData();
             data.TestInt = 1;
 
-            GDF.Player.Add(ref1, data);
-
-            UnityJob job = GDF.Player.Save();
-            yield return WaitJob(job);
-
-            job = GDF.Player.LoadGameSave(1);
-            yield return WaitJob(job);
-
-            data = new GDFTestPlayerData();
-            data.TestInt = 2;
-
-            GDF.Player.Add(ref2, data);
+            GDF.Player.Add(reference, data);
 
             job = GDF.Player.Save();
+            yield return WaitJob(job);
+
+            Assert.Throws<GDFException> (() => GDF.Player.MigrateOnline());
+            Assert.Throws<GDFException> (() => GDF.Player.MigrateOffline());
+        }
+
+        [UnityTest]
+        public IEnumerator CanMigrateLocalToOnline()
+        {
+            string reference = nameof(CanMigrateLocalToOnline);
+
+            UnityJob job = GDF.Account.Authentication.Local.Login();
+            yield return WaitJob(job);
+
+            GDFTestPlayerData data = new GDFTestPlayerData();
+            data.TestInt = 1;
+
+            GDF.Player.Add(reference, data);
+
+            job = GDF.Player.Save();
+            yield return WaitJob(job);
+
+            job = GDF.Account.Authentication.Device.Login(country, true);
+            yield return WaitJob(job);
+
+            job = GDF.Player.MigrateOnline();
+            yield return WaitJob(job);
+
+            job = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
+            yield return WaitJob(job);
+
+            data = GDF.Player.Get<GDFTestPlayerData>(reference);
+            Assert.IsNotNull(data);
+            Assert.AreEqual(data.TestInt, 1);
+        }
+
+        [UnityTest]
+        public IEnumerator CanMigrateOnlineToLocal()
+        {
+            string reference = nameof(CanMigrateOnlineToLocal);
+
+            UnityJob job = GDF.Account.Authentication.Device.Login(country, true);
+            yield return WaitJob(job);
+
+            GDFTestPlayerData data = new GDFTestPlayerData();
+            data.TestInt = 1;
+
+            GDF.Player.Add(reference, data);
+
+            job = GDF.Player.Save();
+            yield return WaitJob(job);
+
+            job = GDF.Player.MigrateOffline();
             yield return WaitJob(job);
 
             job = GDF.Account.Authentication.Local.Login();
             yield return WaitJob(job);
 
-            job = GDF.Player.LoadGameSave(1);
+            job = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(job);
 
-            job = GDF.Player.MigrateLocalData();
-            yield return WaitJob(job);
-
-            data = GDF.Player.Get<GDFTestPlayerData>(ref1);
+            data = GDF.Player.Get<GDFTestPlayerData>(reference);
+            Assert.IsNotNull(data);
             Assert.AreEqual(data.TestInt, 1);
-            
-            data = GDF.Player.Get<GDFTestPlayerData>(ref2);
-            Assert.AreEqual(data.TestInt, 2);
         }
 
         [UnitySetUp]
@@ -65,6 +103,9 @@ namespace PlayerData
             yield return WaitJob(job);
 
             job = GDF.Player.Purge();
+            yield return WaitJob(job);
+            
+            job = GDF.Player.LoadGameSave(GDF.Player.ActiveGameSave);
             yield return WaitJob(job);
         }
 
